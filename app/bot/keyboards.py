@@ -10,9 +10,9 @@ from aiogram.types import (
 from app.models import DealType, Property, PropertyType, ReactionType
 
 REACTION_LABELS = {
-    ReactionType.INTERESTED: "👍 Заинтересовало",
-    ReactionType.WANT_VIEWING: "📅 Хочу просмотр",
-    ReactionType.NOT_SUITABLE: "👎 Не подошло",
+    ReactionType.INTERESTED: "👍 Interested",
+    ReactionType.WANT_VIEWING: "📅 Want a viewing",
+    ReactionType.NOT_SUITABLE: "👎 Not a fit",
 }
 
 
@@ -38,43 +38,41 @@ def property_reaction_keyboard(property_: Property) -> InlineKeyboardMarkup:
 # --- Guided menu (button-driven qualification, alternative to free text) ---
 
 DEAL_TYPE_MENU_LABELS = {
-    DealType.BUY: "🏠 Покупка",
-    DealType.RENT: "🔑 Аренда",
-    DealType.SELL: "💰 Продажа",
+    DealType.BUY: "🏠 Buy",
+    DealType.RENT: "🔑 Rent",
+    DealType.SELL: "💰 Sell",
 }
 
-CITY_OPTIONS = ["Подгорица", "Будва", "Котор", "Тиват"]
+CITY_OPTIONS = ["Toronto", "Calgary"]
 
 DISTRICTS_BY_CITY = {
-    "Подгорица": ["Центр", "Горица", "Запад", "Старый Аэродром", "Блок 5/6"],
-    "Будва": ["Старый город", "Бечичи", "Рафаиловичи", "Петровац"],
-    "Котор": ["Старый город", "Доброта", "Муо", "Пераст"],
-    "Тиват": ["Центр", "Доня-Ластва", "Крашичи"],
+    "Toronto": ["Downtown", "North York", "Scarborough", "Etobicoke", "Yorkville"],
+    "Calgary": ["Downtown", "Beltline", "Kensington", "Inglewood"],
 }
 
 PROPERTY_TYPE_MENU_LABELS = {
-    PropertyType.APARTMENT: "Квартира",
-    PropertyType.HOUSE: "Дом",
-    PropertyType.COMMERCIAL: "Коммерция",
-    PropertyType.LAND: "Земля",
+    PropertyType.APARTMENT: "Apartment",
+    PropertyType.HOUSE: "House",
+    PropertyType.COMMERCIAL: "Commercial",
+    PropertyType.LAND: "Land",
 }
 
 ROOMS_OPTIONS = [1, 2, 3, 4]
 
-# (upper bound of the range, button label, currency) per deal type; Montenegro
-# uses EUR everywhere, rent is monthly, buy/sell is a one-off price.
+# (upper bound of the range, button label, currency) per deal type; Canada
+# uses CAD everywhere, rent is monthly, buy/sell is a one-off price.
 BUDGET_RANGES = {
     DealType.RENT: [
-        (300, "до 300 €/мес", "EUR"),
-        (600, "300–600 €/мес", "EUR"),
-        (1_000, "600–1 000 €/мес", "EUR"),
-        (2_000, "свыше 1 000 €/мес", "EUR"),
+        (1_800, "up to $1,800/mo", "CAD"),
+        (2_800, "$1,800–2,800/mo", "CAD"),
+        (4_000, "$2,800–4,000/mo", "CAD"),
+        (6_000, "over $4,000/mo", "CAD"),
     ],
     "default": [
-        (50_000, "до €50 000", "EUR"),
-        (100_000, "€50 000–100 000", "EUR"),
-        (200_000, "€100 000–200 000", "EUR"),
-        (300_000, "свыше €200 000", "EUR"),
+        (500_000, "up to $500,000", "CAD"),
+        (800_000, "$500,000–800,000", "CAD"),
+        (1_200_000, "$800,000–1,200,000", "CAD"),
+        (1_800_000, "over $1,200,000", "CAD"),
     ],
 }
 
@@ -103,7 +101,7 @@ def city_menu_keyboard() -> InlineKeyboardMarkup:
 
 def district_menu_keyboard(city: str) -> InlineKeyboardMarkup:
     buttons = [[_menu_button(d, "district", d)] for d in DISTRICTS_BY_CITY.get(city, [])]
-    buttons.append([_menu_button("Любой район", "district", "any")])
+    buttons.append([_menu_button("Any neighborhood", "district", "any")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
@@ -135,7 +133,7 @@ def budget_menu_keyboard(deal_type: DealType) -> InlineKeyboardMarkup:
 
 def phone_share_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="📱 Поделиться номером", request_contact=True)]],
+        keyboard=[[KeyboardButton(text="📱 Share phone number", request_contact=True)]],
         resize_keyboard=True,
         one_time_keyboard=True,
     )

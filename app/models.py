@@ -67,7 +67,7 @@ class Lead(Base):
     rooms: Mapped[int | None] = mapped_column(Integer, nullable=True)
     budget_min: Mapped[int | None] = mapped_column(Integer, nullable=True)
     budget_max: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    budget_currency: Mapped[str] = mapped_column(String(10), default="EUR")
+    budget_currency: Mapped[str] = mapped_column(String(10), default="CAD")
 
     temperature: Mapped[Temperature | None] = mapped_column(Enum(Temperature), nullable=True)
     urgency: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -119,7 +119,7 @@ class Property(Base):
     rooms: Mapped[int | None] = mapped_column(Integer, nullable=True)
     area_sqm: Mapped[float | None] = mapped_column(Float, nullable=True)
     price: Mapped[int] = mapped_column(Integer)
-    currency: Mapped[str] = mapped_column(String(10), default="USD")
+    currency: Mapped[str] = mapped_column(String(10), default="CAD")
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
 

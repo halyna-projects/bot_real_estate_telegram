@@ -15,49 +15,47 @@ from typing import Any
 from app.ai.claude_client import DialogueResult
 
 _DEAL_TYPE_PATTERNS = {
-    "rent": re.compile(r"аренд|сн(ять|яла|иму)|найм", re.IGNORECASE),
-    "sell": re.compile(r"продат|продаж", re.IGNORECASE),
-    "buy": re.compile(r"купит|покупк|приобрест", re.IGNORECASE),
+    "rent": re.compile(r"rent|renting|lease", re.IGNORECASE),
+    "sell": re.compile(r"sell|selling|sale", re.IGNORECASE),
+    "buy": re.compile(r"buy|buying|purchase", re.IGNORECASE),
 }
 
 _PROPERTY_TYPE_PATTERNS = {
-    "house": re.compile(r"дом[а-я]*|коттедж", re.IGNORECASE),
-    "commercial": re.compile(r"коммерц|офис|магазин", re.IGNORECASE),
-    "land": re.compile(r"земл[а-я]*|участ", re.IGNORECASE),
-    "apartment": re.compile(r"квартир", re.IGNORECASE),
+    "house": re.compile(r"house|cottage|townhouse", re.IGNORECASE),
+    "commercial": re.compile(r"commercial|office|retail|shop", re.IGNORECASE),
+    "land": re.compile(r"\bland\b|\blot\b|acreage", re.IGNORECASE),
+    "apartment": re.compile(r"apartment|condo|flat", re.IGNORECASE),
 }
 
 _CITY_PATTERNS = {
-    "Подгорица": re.compile(r"подгориц|podgorica", re.IGNORECASE),
-    "Будва": re.compile(r"будв|budva", re.IGNORECASE),
-    "Котор": re.compile(r"котор|kotor", re.IGNORECASE),
-    "Тиват": re.compile(r"тиват|tivat", re.IGNORECASE),
+    "Toronto": re.compile(r"toronto", re.IGNORECASE),
+    "Calgary": re.compile(r"calgary", re.IGNORECASE),
 }
 
-_ROOMS_RE = re.compile(r"(\d+)\s*[-]?\s*к(омн|омнат|)")
-_PHONE_RE = re.compile(r"(\+382\d{7,8}|\+\d{8,15}|0\d{8,9})")
+_ROOMS_RE = re.compile(r"(\d+)\s*[-]?\s*(bed|bedroom|br)s?\b", re.IGNORECASE)
+_PHONE_RE = re.compile(r"(\+1\d{10}|\+\d{8,15}|\d{10})")
 _BUDGET_RE = re.compile(
-    r"(?P<amount>\d[\d\s]{2,})\s*(?P<currency>usd|\$|грн|uah|eur|евро|€)?", re.IGNORECASE
+    r"(?P<amount>\d[\d\s,]{2,})\s*(?P<currency>cad|c\$|usd|us\$|\$|eur|€)?", re.IGNORECASE
 )
-_URGENT_RE = re.compile(r"срочно|быстро|на этой неделе|немедленно|как можно скорее", re.IGNORECASE)
+_URGENT_RE = re.compile(r"urgent|asap|this week|right away|immediately|as soon as possible", re.IGNORECASE)
 
 _CURRENCY_MAP = {
-    "$": "USD",
+    "$": "CAD",
+    "cad": "CAD",
+    "c$": "CAD",
     "usd": "USD",
-    "грн": "UAH",
-    "uah": "UAH",
+    "us$": "USD",
     "eur": "EUR",
-    "евро": "EUR",
     "€": "EUR",
 }
 
 _QUESTIONS_ORDER = [
-    ("deal_type", "Уточните, пожалуйста: покупка, аренда или продажа?"),
-    ("city", "В каком городе ищем (Подгорица, Будва, Котор или Тиват)?"),
-    ("property_type", "Какой тип объекта интересует: квартира, дом, коммерция или земля?"),
-    ("rooms", "Сколько комнат нужно?"),
-    ("budget_max", "Какой ориентировочный бюджет?"),
-    ("phone", "Оставьте, пожалуйста, номер телефона для связи."),
+    ("deal_type", "Just to confirm: are you looking to buy, rent, or sell?"),
+    ("city", "Which city are we searching in (Toronto or Calgary)?"),
+    ("property_type", "What type of property are you interested in: apartment, house, commercial, or land?"),
+    ("rooms", "How many bedrooms do you need?"),
+    ("budget_max", "What's your approximate budget?"),
+    ("phone", "Please leave a phone number so we can reach you."),
 ]
 
 
@@ -94,12 +92,12 @@ def extract_fields(text: str) -> dict[str, Any]:
     budget_overlaps_phone = phone_match and budget_match and (
         budget_match.start() < phone_match.end() and phone_match.start() < budget_match.end()
     )
-    if budget_match and not budget_overlaps_phone and len(budget_match.group("amount").replace(" ", "")) >= 3:
-        amount = int(budget_match.group("amount").replace(" ", ""))
-        fields["budget_max"] = amount
+    amount_digits = budget_match.group("amount").replace(" ", "").replace(",", "") if budget_match else ""
+    if budget_match and not budget_overlaps_phone and len(amount_digits) >= 3:
+        fields["budget_max"] = int(amount_digits)
         currency = budget_match.group("currency")
         if currency:
-            fields["budget_currency"] = _CURRENCY_MAP.get(currency.lower(), "EUR")
+            fields["budget_currency"] = _CURRENCY_MAP.get(currency.lower(), "CAD")
 
     return fields
 
@@ -117,7 +115,7 @@ def classify(fields: dict[str, Any], text: str) -> dict[str, Any] | None:
         temperature = "cold"
     return {
         "temperature": temperature,
-        "urgency": "срочно" if is_urgent else "не указано",
+        "urgency": "urgent" if is_urgent else "not specified",
     }
 
 
@@ -179,10 +177,10 @@ def heuristic_reply(
             break
 
     if fields:
-        reply = "Спасибо, записал! "
-        reply += next_question or "Сейчас подберу варианты под ваш запрос."
+        reply = "Thanks, got it! "
+        reply += next_question or "I'll find matching listings for your request right away."
     else:
-        reply = next_question or "Расскажите, пожалуйста, подробнее о вашем запросе."
+        reply = next_question or "Please tell me more about what you're looking for."
 
     history = list(conversation_history) + [
         {"role": "user", "content": user_message},
