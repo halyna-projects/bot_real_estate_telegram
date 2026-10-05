@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Кабинет риелтора — Последние обращения{% endblock %}
+{% block title %}Kabinet agenta — Poslednji upiti{% endblock %}
 {% block content %}
 
 <div class="summary">
@@ -11,18 +11,18 @@
   {% endfor %}
 </div>
 
-<h2>Последние обращения</h2>
+<h2>Poslednji upiti</h2>
 <table>
   <thead>
     <tr>
-      <th>Клиент</th>
-      <th>Телефон</th>
-      <th>Сделка</th>
-      <th>Город</th>
-      <th>Бюджет</th>
-      <th>Температура</th>
-      <th>Статус воронки</th>
-      <th>Следующее действие</th>
+      <th>Klijent</th>
+      <th>Telefon</th>
+      <th>Posao</th>
+      <th>Grad</th>
+      <th>Budžet</th>
+      <th>Temperatura</th>
+      <th>Status</th>
+      <th>Sledeća akcija</th>
     </tr>
   </thead>
   <tbody>
@@ -46,7 +46,7 @@
       <td>{{ lead.next_action or '—' }}</td>
     </tr>
     {% else %}
-    <tr><td colspan="8">Обращений ещё нет.</td></tr>
+    <tr><td colspan="8">Još nema upita.</td></tr>
     {% endfor %}
   </tbody>
 </table>

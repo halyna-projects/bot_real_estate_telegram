@@ -1,40 +1,40 @@
 STATUS_LABELS = {
-    "new": "Новое обращение",
-    "qualifying": "Квалификация",
-    "offers_sent": "Отправлены варианты",
-    "viewing_scheduled": "Назначен просмотр",
-    "negotiation": "Переговоры",
-    "deal": "Сделка",
-    "lost": "Потеряно",
+    "new": "Novi upit",
+    "qualifying": "Kvalifikacija",
+    "offers_sent": "Poslate ponude",
+    "viewing_scheduled": "Zakazano razgledanje",
+    "negotiation": "Pregovori",
+    "deal": "Posao zaključen",
+    "lost": "Izgubljeno",
 }
 
 TEMPERATURE_LABELS = {
-    "hot": "🔥 Горячий",
-    "warm": "🌤 Тёплый",
-    "cold": "❄️ Холодный",
+    "hot": "🔥 Vruć",
+    "warm": "🌤 Topao",
+    "cold": "❄️ Hladan",
 }
 
 DEAL_TYPE_LABELS = {
-    "buy": "Покупка",
-    "rent": "Аренда",
-    "sell": "Продажа",
+    "buy": "Kupovina",
+    "rent": "Zakup",
+    "sell": "Prodaja",
 }
 
 PROPERTY_TYPE_LABELS = {
-    "apartment": "Квартира",
-    "house": "Дом",
-    "commercial": "Коммерция",
-    "land": "Земля",
+    "apartment": "Stan",
+    "house": "Kuća",
+    "commercial": "Poslovni prostor",
+    "land": "Zemljište",
 }
 
 REACTION_LABELS = {
-    "interested": "Заинтересовало",
-    "want_viewing": "Хочу просмотр",
-    "not_suitable": "Не подошло",
+    "interested": "Zanima me",
+    "want_viewing": "Želim razgledanje",
+    "not_suitable": "Ne odgovara",
 }
 
 SOURCE_LABELS = {
-    "internal": "Собственная база",
+    "internal": "Sopstvena baza",
     "rieltor_ua": "RIELTOR.UA",
 }
 

@@ -40,7 +40,7 @@ async def cmd_start(message: Message) -> None:
         lead.conversation_history = [{"role": "assistant", "content": GREETING_MESSAGE}]
         await session.commit()
 
-    # A reply keyboard (e.g. "Поделиться номером" from a previous
+    # A reply keyboard (e.g. "Pošalji broj" from a previous
     # conversation) and an inline keyboard can't be sent on the same
     # message, so clear any leftover reply keyboard first via a throwaway
     # message that's deleted right away — /start should always start from

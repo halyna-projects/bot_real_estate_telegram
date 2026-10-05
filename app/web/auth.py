@@ -17,7 +17,7 @@ def require_realtor(credentials: HTTPBasicCredentials = Depends(_security)) -> s
     if not (correct_username and correct_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Неверный логин или пароль",
+            detail="Pogrešno korisničko ime ili lozinka",
             headers={"WWW-Authenticate": "Basic"},
         )
     return credentials.username
