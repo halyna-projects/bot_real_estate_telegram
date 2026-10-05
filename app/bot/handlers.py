@@ -6,7 +6,7 @@ from aiogram import Bot, F, Router
 from aiogram.filters import Command
 from aiogram.types import CallbackQuery, Message
 
-from app.ai.prompts import GREETING_MESSAGE, UNSUPPORTED_CITY_NOTE
+from app.ai.prompts import GREETING_MESSAGE
 from app.bot.formatting import format_reaction_confirmation
 from app.bot.keyboards import (
     deal_type_menu_keyboard,
@@ -14,7 +14,6 @@ from app.bot.keyboards import (
 )
 from app.bot.notifications import notify_realtor
 from app.bot.search_flow import present_search_results
-from app.config import get_settings
 from app.db import async_session_factory
 from app.models import Property
 from app.services.leads import (
@@ -46,8 +45,6 @@ async def cmd_start(message: Message) -> None:
 
 @router.message(F.text & ~F.text.startswith("/"))
 async def handle_text(message: Message, bot: Bot) -> None:
-    settings = get_settings()
-
     async with async_session_factory() as session:
         lead = await get_or_create_lead(
             session,
@@ -59,9 +56,6 @@ async def handle_text(message: Message, bot: Bot) -> None:
 
         result = await handle_incoming_message(session, lead, message.text)
         await message.answer(result.reply_text)
-
-        if lead.city and lead.city not in settings.rieltor_ua_allowed_cities_list:
-            await message.answer(UNSUPPORTED_CITY_NOTE)
 
         should_search = lead.is_qualified() and not was_qualified
 

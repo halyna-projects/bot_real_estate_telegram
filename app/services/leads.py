@@ -55,7 +55,7 @@ def reset_lead_for_new_conversation(lead: Lead) -> None:
     lead.rooms = None
     lead.budget_min = None
     lead.budget_max = None
-    lead.budget_currency = "USD"
+    lead.budget_currency = "EUR"
     lead.phone = None
     lead.temperature = None
     lead.urgency = None

@@ -23,7 +23,10 @@ class Settings(BaseSettings):
     web_admin_password: str = "change-me"
 
     rieltor_ua_max_price_usd: int = 100_000
-    rieltor_ua_allowed_cities: str = "Киев,Львов"
+    # RIELTOR.UA only has Ukrainian listings, so it's irrelevant for the
+    # Montenegro market and left empty here — fetch_listings() degrades to
+    # "no external results" (internal DB only) whenever this is empty.
+    rieltor_ua_allowed_cities: str = ""
     rieltor_ua_base_url: str = "https://rieltor.ua"
     rieltor_ua_request_timeout: int = 10
 

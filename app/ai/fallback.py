@@ -28,22 +28,32 @@ _PROPERTY_TYPE_PATTERNS = {
 }
 
 _CITY_PATTERNS = {
-    "Киев": re.compile(r"ки[ей]в|kyiv|kiev", re.IGNORECASE),
-    "Львов": re.compile(r"льв[оа]в|lviv", re.IGNORECASE),
+    "Подгорица": re.compile(r"подгориц|podgorica", re.IGNORECASE),
+    "Будва": re.compile(r"будв|budva", re.IGNORECASE),
+    "Котор": re.compile(r"котор|kotor", re.IGNORECASE),
+    "Тиват": re.compile(r"тиват|tivat", re.IGNORECASE),
 }
 
 _ROOMS_RE = re.compile(r"(\d+)\s*[-]?\s*к(омн|омнат|)")
-_PHONE_RE = re.compile(r"(\+?380\d{9}|0\d{9})")
+_PHONE_RE = re.compile(r"(\+382\d{7,8}|\+\d{8,15}|0\d{8,9})")
 _BUDGET_RE = re.compile(
-    r"(?P<amount>\d[\d\s]{2,})\s*(?P<currency>usd|\$|грн|uah|eur|€)?", re.IGNORECASE
+    r"(?P<amount>\d[\d\s]{2,})\s*(?P<currency>usd|\$|грн|uah|eur|евро|€)?", re.IGNORECASE
 )
 _URGENT_RE = re.compile(r"срочно|быстро|на этой неделе|немедленно|как можно скорее", re.IGNORECASE)
 
-_CURRENCY_MAP = {"$": "USD", "usd": "USD", "грн": "UAH", "uah": "UAH", "eur": "EUR", "€": "EUR"}
+_CURRENCY_MAP = {
+    "$": "USD",
+    "usd": "USD",
+    "грн": "UAH",
+    "uah": "UAH",
+    "eur": "EUR",
+    "евро": "EUR",
+    "€": "EUR",
+}
 
 _QUESTIONS_ORDER = [
     ("deal_type", "Уточните, пожалуйста: покупка, аренда или продажа?"),
-    ("city", "В каком городе ищем (Киев или Львов)?"),
+    ("city", "В каком городе ищем (Подгорица, Будва, Котор или Тиват)?"),
     ("property_type", "Какой тип объекта интересует: квартира, дом, коммерция или земля?"),
     ("rooms", "Сколько комнат нужно?"),
     ("budget_max", "Какой ориентировочный бюджет?"),
@@ -83,7 +93,7 @@ def extract_fields(text: str) -> dict[str, Any]:
         fields["budget_max"] = amount
         currency = budget_match.group("currency")
         if currency:
-            fields["budget_currency"] = _CURRENCY_MAP.get(currency.lower(), "USD")
+            fields["budget_currency"] = _CURRENCY_MAP.get(currency.lower(), "EUR")
 
     return fields
 

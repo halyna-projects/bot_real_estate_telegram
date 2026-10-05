@@ -30,7 +30,7 @@ async def test_button_menu_flow_qualifies_lead_step_by_step(session):
     await _advance("deal_type", target, session, lead, bot)
     assert "городе" in target.messages[-1].lower()
 
-    await _apply_menu_choice(lead, "city", "Киев")
+    await _apply_menu_choice(lead, "city", "Подгорица")
     await _advance("city", target, session, lead, bot)
     assert "районе" in target.messages[-1].lower()
 
@@ -48,9 +48,9 @@ async def test_button_menu_flow_qualifies_lead_step_by_step(session):
     await _advance("rooms", target, session, lead, bot)
     assert "бюджет" in target.messages[-1].lower()
 
-    await _apply_menu_choice(lead, "budget", "100000_USD")
+    await _apply_menu_choice(lead, "budget", "100000_EUR")
     assert lead.budget_max == 100000
-    assert lead.budget_currency == "USD"
+    assert lead.budget_currency == "EUR"
     await _advance("budget", target, session, lead, bot)
     assert "телефон" in target.messages[-1].lower()
 
@@ -65,9 +65,9 @@ async def test_district_choice_stores_specific_value(session):
     session.add(lead)
     await session.flush()
 
-    await _apply_menu_choice(lead, "city", "Львов")
-    await _apply_menu_choice(lead, "district", "Лычаковский")
-    assert lead.district == "Лычаковский"
+    await _apply_menu_choice(lead, "city", "Котор")
+    await _apply_menu_choice(lead, "district", "Доброта")
+    assert lead.district == "Доброта"
 
 
 @pytest.mark.asyncio

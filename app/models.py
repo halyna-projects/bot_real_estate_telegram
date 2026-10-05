@@ -67,7 +67,7 @@ class Lead(Base):
     rooms: Mapped[int | None] = mapped_column(Integer, nullable=True)
     budget_min: Mapped[int | None] = mapped_column(Integer, nullable=True)
     budget_max: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    budget_currency: Mapped[str] = mapped_column(String(10), default="USD")
+    budget_currency: Mapped[str] = mapped_column(String(10), default="EUR")
 
     temperature: Mapped[Temperature | None] = mapped_column(Enum(Temperature), nullable=True)
     urgency: Mapped[str | None] = mapped_column(String(255), nullable=True)

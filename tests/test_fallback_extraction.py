@@ -3,10 +3,10 @@ from app.ai.prompts import GREETING_MESSAGE
 
 
 def test_extract_deal_type_and_city():
-    fields = extract_fields("Хочу купить квартиру в Киеве")
+    fields = extract_fields("Хочу купить квартиру в Подгорице")
     assert fields["deal_type"] == "buy"
     assert fields["property_type"] == "apartment"
-    assert fields["city"] == "Киев"
+    assert fields["city"] == "Подгорица"
 
 
 def test_extract_rooms_budget_phone():
@@ -31,7 +31,7 @@ def test_classify_cold_without_core_data():
 def test_heuristic_reply_asks_for_missing_field():
     result = heuristic_reply([], "Хочу купить квартиру")
     assert result.profile_updates["deal_type"] == "buy"
-    assert "город" in result.reply_text.lower() or "киев" in result.reply_text.lower()
+    assert "город" in result.reply_text.lower() or "подгориц" in result.reply_text.lower()
 
 
 def test_heuristic_reply_understands_bare_number_answering_rooms_question():
