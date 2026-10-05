@@ -15,49 +15,48 @@ from typing import Any
 from app.ai.claude_client import DialogueResult
 
 _DEAL_TYPE_PATTERNS = {
-    "rent": re.compile(r"аренд|сн(ять|яла|иму)|найм", re.IGNORECASE),
-    "sell": re.compile(r"продат|продаж", re.IGNORECASE),
-    "buy": re.compile(r"купит|покупк|приобрест", re.IGNORECASE),
+    "rent": re.compile(r"zakup|iznajm|najam", re.IGNORECASE),
+    "sell": re.compile(r"prodat|prodaj", re.IGNORECASE),
+    "buy": re.compile(r"kupi|kupovin", re.IGNORECASE),
 }
 
 _PROPERTY_TYPE_PATTERNS = {
-    "house": re.compile(r"дом[а-я]*|коттедж", re.IGNORECASE),
-    "commercial": re.compile(r"коммерц|офис|магазин", re.IGNORECASE),
-    "land": re.compile(r"земл[а-я]*|участ", re.IGNORECASE),
-    "apartment": re.compile(r"квартир", re.IGNORECASE),
+    "house": re.compile(r"kuć|kuc", re.IGNORECASE),
+    "commercial": re.compile(r"poslovn|kancelarij|prodavnic", re.IGNORECASE),
+    "land": re.compile(r"zemljišt|zemljist|parcel", re.IGNORECASE),
+    "apartment": re.compile(r"stan", re.IGNORECASE),
 }
 
 _CITY_PATTERNS = {
-    "Подгорица": re.compile(r"подгориц|podgorica", re.IGNORECASE),
-    "Будва": re.compile(r"будв|budva", re.IGNORECASE),
-    "Котор": re.compile(r"котор|kotor", re.IGNORECASE),
-    "Тиват": re.compile(r"тиват|tivat", re.IGNORECASE),
+    "Podgorica": re.compile(r"podgoric", re.IGNORECASE),
+    "Budva": re.compile(r"budv", re.IGNORECASE),
+    "Kotor": re.compile(r"kotor", re.IGNORECASE),
+    "Tivat": re.compile(r"tivat", re.IGNORECASE),
 }
 
-_ROOMS_RE = re.compile(r"(\d+)\s*[-]?\s*к(омн|омнат|)")
+_ROOMS_RE = re.compile(r"(\d+)\s*[-]?\s*sob")
 _PHONE_RE = re.compile(r"(\+382\d{7,8}|\+\d{8,15}|0\d{8,9})")
 _BUDGET_RE = re.compile(
-    r"(?P<amount>\d[\d\s]{2,})\s*(?P<currency>usd|\$|грн|uah|eur|евро|€)?", re.IGNORECASE
+    r"(?P<amount>\d[\d\s]{2,})\s*(?P<currency>usd|\$|eur|evra|evr|€)?", re.IGNORECASE
 )
-_URGENT_RE = re.compile(r"срочно|быстро|на этой неделе|немедленно|как можно скорее", re.IGNORECASE)
+_URGENT_RE = re.compile(r"hitno|brzo|ove nedelje|odmah|što pre|sto pre", re.IGNORECASE)
 
 _CURRENCY_MAP = {
     "$": "USD",
     "usd": "USD",
-    "грн": "UAH",
-    "uah": "UAH",
     "eur": "EUR",
-    "евро": "EUR",
+    "evra": "EUR",
+    "evr": "EUR",
     "€": "EUR",
 }
 
 _QUESTIONS_ORDER = [
-    ("deal_type", "Уточните, пожалуйста: покупка, аренда или продажа?"),
-    ("city", "В каком городе ищем (Подгорица, Будва, Котор или Тиват)?"),
-    ("property_type", "Какой тип объекта интересует: квартира, дом, коммерция или земля?"),
-    ("rooms", "Сколько комнат нужно?"),
-    ("budget_max", "Какой ориентировочный бюджет?"),
-    ("phone", "Оставьте, пожалуйста, номер телефона для связи."),
+    ("deal_type", "Precizirajte, molim vas: kupovina, zakup ili prodaja?"),
+    ("city", "U kom gradu tražimo (Podgorica, Budva, Kotor ili Tivat)?"),
+    ("property_type", "Koji tip objekta vas zanima: stan, kuća, poslovni prostor ili zemljište?"),
+    ("rooms", "Koliko soba je potrebno?"),
+    ("budget_max", "Koji je okvirni budžet?"),
+    ("phone", "Ostavite, molim vas, broj telefona za kontakt."),
 ]
 
 
@@ -117,7 +116,7 @@ def classify(fields: dict[str, Any], text: str) -> dict[str, Any] | None:
         temperature = "cold"
     return {
         "temperature": temperature,
-        "urgency": "срочно" if is_urgent else "не указано",
+        "urgency": "hitno" if is_urgent else "nije navedeno",
     }
 
 
@@ -179,10 +178,10 @@ def heuristic_reply(
             break
 
     if fields:
-        reply = "Спасибо, записал! "
-        reply += next_question or "Сейчас подберу варианты под ваш запрос."
+        reply = "Hvala, zabeleženo! "
+        reply += next_question or "Odmah ću pronaći ponude po vašem zahtevu."
     else:
-        reply = next_question or "Расскажите, пожалуйста, подробнее о вашем запросе."
+        reply = next_question or "Recite mi, molim vas, detaljnije o vašem zahtevu."
 
     history = list(conversation_history) + [
         {"role": "user", "content": user_message},

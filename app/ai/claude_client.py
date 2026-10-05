@@ -64,9 +64,9 @@ class DialogueEngine:
         system = SYSTEM_PROMPT
         if known_fields:
             system += (
-                "\n\nУже известно о клиенте (например, выбрано через кнопки меню "
-                f"ранее в этом диалоге): {known_fields}. Не переспрашивай это "
-                "повторно — учитывай при следующем вопросе и вызове "
+                "\n\nVeć je poznato o klijentu (npr. izabrano preko dugmića "
+                f"ranije u ovom razgovoru): {known_fields}. Ne pitaj ponovo — "
+                "uzmi to u obzir pri sledećem pitanju i pozivu "
                 "update_lead_profile."
             )
 
@@ -87,7 +87,7 @@ class DialogueEngine:
                     block.text for block in response.content if block.type == "text"
                 ).strip()
                 return DialogueResult(
-                    reply_text=reply_text or "Расскажите, пожалуйста, немного подробнее.",
+                    reply_text=reply_text or "Recite mi, molim vas, malo detaljnije.",
                     profile_updates=profile_updates,
                     classification=classification,
                     conversation_history=messages,
@@ -120,7 +120,7 @@ class DialogueEngine:
 
         logger.warning("DialogueEngine: max tool iterations reached without final text reply")
         return DialogueResult(
-            reply_text="Спасибо за информацию! Сейчас подберу варианты.",
+            reply_text="Hvala na informacijama! Odmah ću pronaći ponude.",
             profile_updates=profile_updates,
             classification=classification,
             conversation_history=messages,
