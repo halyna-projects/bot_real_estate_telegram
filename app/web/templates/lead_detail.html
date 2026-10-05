@@ -1,46 +1,46 @@
 {% extends "base.html" %}
-{% block title %}Лид — {{ lead.full_name or lead.telegram_username or lead.id }}{% endblock %}
+{% block title %}Lead — {{ lead.full_name or lead.telegram_username or lead.id }}{% endblock %}
 {% block content %}
 
-<a class="back-link" href="/">← К списку обращений</a>
+<a class="back-link" href="/">← Back to inquiries</a>
 
 <div class="card">
-  <h2>Карточка лида</h2>
+  <h2>Lead Details</h2>
   <div class="field-grid">
     <div class="field">
-      <div class="label">Клиент</div>
+      <div class="label">Client</div>
       <div class="value">{{ lead.full_name or lead.telegram_username or ('Telegram ID ' ~ lead.telegram_user_id) }}</div>
     </div>
     <div class="field">
-      <div class="label">Телефон</div>
+      <div class="label">Phone</div>
       <div class="value">{{ lead.phone or '—' }}</div>
     </div>
     <div class="field">
-      <div class="label">Тип сделки</div>
+      <div class="label">Deal type</div>
       <div class="value">{{ deal_type_labels.get(lead.deal_type.value if lead.deal_type else '', '—') }}</div>
     </div>
     <div class="field">
-      <div class="label">Город / район</div>
+      <div class="label">City / Neighborhood</div>
       <div class="value">{{ lead.city or '—' }}{% if lead.district %}, {{ lead.district }}{% endif %}</div>
     </div>
     <div class="field">
-      <div class="label">Тип объекта</div>
+      <div class="label">Property type</div>
       <div class="value">{{ property_type_labels.get(lead.property_type.value if lead.property_type else '', '—') }}</div>
     </div>
     <div class="field">
-      <div class="label">Комнаты</div>
+      <div class="label">Bedrooms</div>
       <div class="value">{{ lead.rooms or '—' }}</div>
     </div>
     <div class="field">
-      <div class="label">Бюджет</div>
+      <div class="label">Budget</div>
       <div class="value">
         {% if lead.budget_max %}
-          до {{ '{:,}'.format(lead.budget_max).replace(',', ' ') }} {{ lead.budget_currency }}
+          up to {{ '{:,}'.format(lead.budget_max).replace(',', ' ') }} {{ lead.budget_currency }}
         {% else %}—{% endif %}
       </div>
     </div>
     <div class="field">
-      <div class="label">Температура лида</div>
+      <div class="label">Lead temperature</div>
       <div class="value">
         {% if lead.temperature %}
           <span class="badge {{ lead.temperature.value }}">{{ temperature_labels.get(lead.temperature.value, lead.temperature.value) }}</span>
@@ -48,52 +48,52 @@
       </div>
     </div>
     <div class="field">
-      <div class="label">Срочность</div>
+      <div class="label">Urgency</div>
       <div class="value">{{ lead.urgency or '—' }}</div>
     </div>
     <div class="field">
-      <div class="label">Создано</div>
+      <div class="label">Created</div>
       <div class="value">{{ lead.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
     </div>
   </div>
 </div>
 
 <div class="card">
-  <h2>Управление маршрутом</h2>
+  <h2>Manage Pipeline</h2>
   <form class="route-form" method="post" action="/leads/{{ lead.id }}">
-    <label>Ответственный</label>
-    <input type="text" name="assigned_to" value="{{ lead.assigned_to or '' }}" placeholder="Имя риелтора">
+    <label>Assigned to</label>
+    <input type="text" name="assigned_to" value="{{ lead.assigned_to or '' }}" placeholder="Agent name">
 
-    <label>Статус воронки</label>
+    <label>Status</label>
     <select name="status">
       {% for s in statuses %}
       <option value="{{ s.value }}" {% if lead.status == s %}selected{% endif %}>{{ status_labels.get(s.value, s.value) }}</option>
       {% endfor %}
     </select>
 
-    <label>Следующее действие</label>
-    <input type="text" name="next_action" value="{{ lead.next_action or '' }}" placeholder="напр. Подготовить договор">
+    <label>Next action</label>
+    <input type="text" name="next_action" value="{{ lead.next_action or '' }}" placeholder="e.g. Prepare the contract">
 
-    <label>Дедлайн следующего действия</label>
+    <label>Next action due</label>
     <input type="datetime-local" name="next_action_due" value="{{ lead.next_action_due.strftime('%Y-%m-%dT%H:%M') if lead.next_action_due else '' }}">
 
-    <label>Заметки</label>
+    <label>Notes</label>
     <textarea name="notes" rows="3">{{ lead.notes or '' }}</textarea>
 
-    <button type="submit">Сохранить</button>
+    <button type="submit">Save</button>
   </form>
 </div>
 
 <div class="card">
-  <h2>История реакций на объявления</h2>
+  <h2>Listing Reaction History</h2>
   <table>
     <thead>
       <tr>
-        <th>Объявление</th>
-        <th>Источник</th>
-        <th>Цена</th>
-        <th>Реакция клиента</th>
-        <th>Дата</th>
+        <th>Listing</th>
+        <th>Source</th>
+        <th>Price</th>
+        <th>Client Reaction</th>
+        <th>Date</th>
       </tr>
     </thead>
     <tbody>
@@ -106,7 +106,7 @@
         <td>{{ reaction.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
       </tr>
       {% else %}
-      <tr><td colspan="5">Клиент ещё не реагировал на объявления.</td></tr>
+      <tr><td colspan="5">The client hasn't reacted to any listings yet.</td></tr>
       {% endfor %}
     </tbody>
   </table>

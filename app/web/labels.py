@@ -1,40 +1,40 @@
 STATUS_LABELS = {
-    "new": "Новое обращение",
-    "qualifying": "Квалификация",
-    "offers_sent": "Отправлены варианты",
-    "viewing_scheduled": "Назначен просмотр",
-    "negotiation": "Переговоры",
-    "deal": "Сделка",
-    "lost": "Потеряно",
+    "new": "New inquiry",
+    "qualifying": "Qualifying",
+    "offers_sent": "Offers sent",
+    "viewing_scheduled": "Viewing scheduled",
+    "negotiation": "Negotiation",
+    "deal": "Deal closed",
+    "lost": "Lost",
 }
 
 TEMPERATURE_LABELS = {
-    "hot": "🔥 Горячий",
-    "warm": "🌤 Тёплый",
-    "cold": "❄️ Холодный",
+    "hot": "🔥 Hot",
+    "warm": "🌤 Warm",
+    "cold": "❄️ Cold",
 }
 
 DEAL_TYPE_LABELS = {
-    "buy": "Покупка",
-    "rent": "Аренда",
-    "sell": "Продажа",
+    "buy": "Buy",
+    "rent": "Rent",
+    "sell": "Sell",
 }
 
 PROPERTY_TYPE_LABELS = {
-    "apartment": "Квартира",
-    "house": "Дом",
-    "commercial": "Коммерция",
-    "land": "Земля",
+    "apartment": "Apartment",
+    "house": "House",
+    "commercial": "Commercial",
+    "land": "Land",
 }
 
 REACTION_LABELS = {
-    "interested": "Заинтересовало",
-    "want_viewing": "Хочу просмотр",
-    "not_suitable": "Не подошло",
+    "interested": "Interested",
+    "want_viewing": "Want a viewing",
+    "not_suitable": "Not a fit",
 }
 
 SOURCE_LABELS = {
-    "internal": "Собственная база",
+    "internal": "In-house listings",
     "rieltor_ua": "RIELTOR.UA",
 }
 
