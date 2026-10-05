@@ -112,7 +112,7 @@ async def record_reaction(
 
     if reaction == ReactionType.WANT_VIEWING:
         lead.status = LeadStatus.VIEWING_SCHEDULED
-        lead.next_action = f"Назначить просмотр: {property_.title}"
+        lead.next_action = f"Zakazati razgledanje: {property_.title}"
     elif reaction == ReactionType.INTERESTED and lead.status in (
         LeadStatus.NEW,
         LeadStatus.QUALIFYING,
