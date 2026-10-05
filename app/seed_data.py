@@ -2,6 +2,14 @@
 has something to match against out of the box. Run with:
 
     python -m app.seed_data
+
+The search filter (app/search/internal.py) matches on exact city, exact
+rooms count and price <= budget_max, so a sparse sample set makes it very
+easy for a live demo to hit "no results" just by picking an unlucky
+rooms/budget combination in the button menu. To avoid that, every
+(rooms x budget-bracket) combination from the menu's own options
+(keyboards.ROOMS_OPTIONS x keyboards.BUDGET_RANGES) is covered by at least
+one apartment listing per city and deal type.
 """
 
 from __future__ import annotations
@@ -13,132 +21,79 @@ from sqlalchemy import select
 from app.db import async_session_factory, init_db
 from app.models import DealType, Property, PropertySource, PropertyType
 
-SAMPLE_PROPERTIES = [
-    # Podgorica
-    dict(
-        title="Ulica 1, 2 sobe, 65m²",
-        city="Podgorica",
-        district="Centar",
-        property_type=PropertyType.APARTMENT,
-        deal_type=DealType.BUY,
-        rooms=2,
-        area_sqm=65,
-        price=95_000,
-        currency="EUR",
-        description="Udoban dvosoban stan u centru, novija adaptacija.",
-    ),
-    dict(
-        title="Ulica 2, 1 soba, 42m²",
-        city="Podgorica",
-        district="Blok 5/6",
-        property_type=PropertyType.APARTMENT,
-        deal_type=DealType.BUY,
-        rooms=1,
-        area_sqm=42,
-        price=68_000,
-        currency="EUR",
-        description="Jednosoban stan blizu nove gradnje.",
-    ),
-    dict(
-        title="Ulica 3, 2 sobe, 60m² — izdavanje",
-        city="Podgorica",
-        district="Gorica",
-        property_type=PropertyType.APARTMENT,
-        deal_type=DealType.RENT,
-        rooms=2,
-        area_sqm=60,
-        price=450,
-        currency="EUR",
-        description="Izdavanje nedaleko od centra, u mirnom kraju.",
-    ),
-    # Budva
-    dict(
-        title="Ulica 4, 2 sobe, 55m² — izdavanje",
-        city="Budva",
-        district="Bečići",
-        property_type=PropertyType.APARTMENT,
-        deal_type=DealType.RENT,
-        rooms=2,
-        area_sqm=55,
-        price=650,
-        currency="EUR",
-        description="Izdavanje 5 minuta od plaže, potpuno opremljen.",
-    ),
-    dict(
-        title="Ulica 5, 2 sobe, 58m²",
-        city="Budva",
-        district="Stari grad",
-        property_type=PropertyType.APARTMENT,
-        deal_type=DealType.BUY,
-        rooms=2,
-        area_sqm=58,
-        price=110_000,
-        currency="EUR",
-        description="Stan u istorijskom centru, pogled na gradske zidine.",
-    ),
-    dict(
-        title="Ulica 6, kuća 4 sobe, 150m²",
-        city="Budva",
-        district="Petrovac",
-        property_type=PropertyType.HOUSE,
-        deal_type=DealType.BUY,
-        rooms=4,
-        area_sqm=150,
-        price=270_000,
-        currency="EUR",
-        description="Kuća sa placem i pogledom na more, useljiva odmah.",
-    ),
-    # Kotor
-    dict(
-        title="Ulica 7, 3 sobe, 88m²",
-        city="Kotor",
-        district="Stari grad",
-        property_type=PropertyType.APARTMENT,
-        deal_type=DealType.BUY,
-        rooms=3,
-        area_sqm=88,
-        price=190_000,
-        currency="EUR",
-        description="Prostran trosoban stan s pogledom na tvrđavu.",
-    ),
-    dict(
-        title="Ulica 8, 1 soba, 35m² — izdavanje",
-        city="Kotor",
-        district="Dobrota",
-        property_type=PropertyType.APARTMENT,
-        deal_type=DealType.RENT,
-        rooms=1,
-        area_sqm=35,
-        price=400,
-        currency="EUR",
-        description="Kompaktan stan za izdavanje uz obalu.",
-    ),
-    # Tivat
-    dict(
-        title="Ulica 9, 1 soba, 38m² — izdavanje",
-        city="Tivat",
-        district="Donja Lastva",
-        property_type=PropertyType.APARTMENT,
-        deal_type=DealType.RENT,
-        rooms=1,
-        area_sqm=38,
-        price=400,
-        currency="EUR",
-        description="Kompaktan stan za izdavanje blizu centra i marine.",
-    ),
-    dict(
-        title="Ulica 10, 2 sobe, 70m²",
-        city="Tivat",
-        district="Centar",
-        property_type=PropertyType.APARTMENT,
-        deal_type=DealType.BUY,
-        rooms=2,
-        area_sqm=70,
-        price=140_000,
-        currency="EUR",
-        description="Stan blizu marine, pogodan i za izdavanje.",
-    ),
-]
+_DISTRICTS = {
+    "Podgorica": ["Centar", "Gorica", "Zapad", "Stari aerodrom", "Blok 5/6"],
+    "Budva": ["Stari grad", "Bečići", "Rafailovići", "Petrovac"],
+    "Kotor": ["Stari grad", "Dobrota", "Muo", "Perast"],
+    "Tivat": ["Centar", "Donja Lastva", "Krašići"],
+}
+
+_ROOMS = [1, 2, 3, 4]
+
+# One price per budget bracket from keyboards.BUDGET_RANGES, safely under
+# each bracket's upper bound, so every bracket button finds a match.
+_RENT_PRICES = [280, 550, 900, 1800]  # brackets: <=300, <=600, <=1000, <=2000
+_BUY_PRICES = [45_000, 95_000, 180_000, 280_000]  # brackets: <=50k, <=100k, <=200k, <=300k
+
+SAMPLE_PROPERTIES: list[dict] = []
+
+_street = 0
+for city, districts in _DISTRICTS.items():
+    for rooms in _ROOMS:
+        for price in _RENT_PRICES:
+            _street += 1
+            area = 25 + rooms * 18
+            SAMPLE_PROPERTIES.append(
+                dict(
+                    title=f"Ulica {_street}, {rooms} sobe, {area}m² — izdavanje",
+                    city=city,
+                    district=districts[_street % len(districts)],
+                    property_type=PropertyType.APARTMENT,
+                    deal_type=DealType.RENT,
+                    rooms=rooms,
+                    area_sqm=area,
+                    price=price,
+                    currency="EUR",
+                    description="Stan za izdavanje, useljiv odmah.",
+                )
+            )
+        for price in _BUY_PRICES:
+            _street += 1
+            area = 28 + rooms * 20
+            SAMPLE_PROPERTIES.append(
+                dict(
+                    title=f"Ulica {_street}, {rooms} sobe, {area}m²",
+                    city=city,
+                    district=districts[_street % len(districts)],
+                    property_type=PropertyType.APARTMENT,
+                    deal_type=DealType.BUY,
+                    rooms=rooms,
+                    area_sqm=area,
+                    price=price,
+                    currency="EUR",
+                    description="Stan na prodaju, dobra lokacija.",
+                )
+            )
+
+# A couple of houses per city too (rent/buy, mid rooms counts) so that
+# menu path isn't a dead end either, without going for full coverage.
+for city, districts in _DISTRICTS.items():
+    for rooms, price in [(3, 160_000), (4, 260_000)]:
+        _street += 1
+        SAMPLE_PROPERTIES.append(
+            dict(
+                title=f"Ulica {_street}, kuća {rooms} sobe, {rooms * 40}m²",
+                city=city,
+                district=districts[0],
+                property_type=PropertyType.HOUSE,
+                deal_type=DealType.BUY,
+                rooms=rooms,
+                area_sqm=rooms * 40,
+                price=price,
+                currency="EUR",
+                description="Kuća sa placem, useljiva odmah.",
+            )
+        )
 
 
 async def seed() -> None:
