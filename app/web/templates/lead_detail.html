@@ -1,14 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Лід — {{ lead.full_name or lead.telegram_username or lead.id }}{% endblock %}
+{% block title %}Лид — {{ lead.full_name or lead.telegram_username or lead.id }}{% endblock %}
 {% block content %}
 
-<a class="back-link" href="/">← До списку звернень</a>
+<a class="back-link" href="/">← К списку обращений</a>
 
 <div class="card">
-  <h2>Картка ліда</h2>
+  <h2>Карточка лида</h2>
   <div class="field-grid">
     <div class="field">
-      <div class="label">Клієнт</div>
+      <div class="label">Клиент</div>
       <div class="value">{{ lead.full_name or lead.telegram_username or ('Telegram ID ' ~ lead.telegram_user_id) }}</div>
     </div>
     <div class="field">
@@ -16,19 +16,19 @@
       <div class="value">{{ lead.phone or '—' }}</div>
     </div>
     <div class="field">
-      <div class="label">Тип угоди</div>
+      <div class="label">Тип сделки</div>
       <div class="value">{{ deal_type_labels.get(lead.deal_type.value if lead.deal_type else '', '—') }}</div>
     </div>
     <div class="field">
-      <div class="label">Місто / район</div>
+      <div class="label">Город / район</div>
       <div class="value">{{ lead.city or '—' }}{% if lead.district %}, {{ lead.district }}{% endif %}</div>
     </div>
     <div class="field">
-      <div class="label">Тип об'єкта</div>
+      <div class="label">Тип объекта</div>
       <div class="value">{{ property_type_labels.get(lead.property_type.value if lead.property_type else '', '—') }}</div>
     </div>
     <div class="field">
-      <div class="label">Кімнати</div>
+      <div class="label">Комнаты</div>
       <div class="value">{{ lead.rooms or '—' }}</div>
     </div>
     <div class="field">
@@ -40,7 +40,7 @@
       </div>
     </div>
     <div class="field">
-      <div class="label">Температура ліда</div>
+      <div class="label">Температура лида</div>
       <div class="value">
         {% if lead.temperature %}
           <span class="badge {{ lead.temperature.value }}">{{ temperature_labels.get(lead.temperature.value, lead.temperature.value) }}</span>
@@ -48,21 +48,21 @@
       </div>
     </div>
     <div class="field">
-      <div class="label">Терміновість</div>
+      <div class="label">Срочность</div>
       <div class="value">{{ lead.urgency or '—' }}</div>
     </div>
     <div class="field">
-      <div class="label">Створено</div>
+      <div class="label">Создано</div>
       <div class="value">{{ lead.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
     </div>
   </div>
 </div>
 
 <div class="card">
-  <h2>Керування маршрутом</h2>
+  <h2>Управление маршрутом</h2>
   <form class="route-form" method="post" action="/leads/{{ lead.id }}">
-    <label>Відповідальний</label>
-    <input type="text" name="assigned_to" value="{{ lead.assigned_to or '' }}" placeholder="Ім'я рієлтора">
+    <label>Ответственный</label>
+    <input type="text" name="assigned_to" value="{{ lead.assigned_to or '' }}" placeholder="Имя риелтора">
 
     <label>Статус воронки</label>
     <select name="status">
@@ -71,28 +71,28 @@
       {% endfor %}
     </select>
 
-    <label>Наступна дія</label>
-    <input type="text" name="next_action" value="{{ lead.next_action or '' }}" placeholder="напр. Підготувати договір">
+    <label>Следующее действие</label>
+    <input type="text" name="next_action" value="{{ lead.next_action or '' }}" placeholder="напр. Подготовить договор">
 
-    <label>Дедлайн наступної дії</label>
+    <label>Дедлайн следующего действия</label>
     <input type="datetime-local" name="next_action_due" value="{{ lead.next_action_due.strftime('%Y-%m-%dT%H:%M') if lead.next_action_due else '' }}">
 
-    <label>Нотатки</label>
+    <label>Заметки</label>
     <textarea name="notes" rows="3">{{ lead.notes or '' }}</textarea>
 
-    <button type="submit">Зберегти</button>
+    <button type="submit">Сохранить</button>
   </form>
 </div>
 
 <div class="card">
-  <h2>Історія реакцій на оголошення</h2>
+  <h2>История реакций на объявления</h2>
   <table>
     <thead>
       <tr>
-        <th>Оголошення</th>
-        <th>Джерело</th>
-        <th>Ціна</th>
-        <th>Реакція клієнта</th>
+        <th>Объявление</th>
+        <th>Источник</th>
+        <th>Цена</th>
+        <th>Реакция клиента</th>
         <th>Дата</th>
       </tr>
     </thead>
@@ -106,7 +106,7 @@
         <td>{{ reaction.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
       </tr>
       {% else %}
-      <tr><td colspan="5">Клієнт ще не реагував на оголошення.</td></tr>
+      <tr><td colspan="5">Клиент ещё не реагировал на объявления.</td></tr>
       {% endfor %}
     </tbody>
   </table>

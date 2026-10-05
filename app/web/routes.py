@@ -46,7 +46,7 @@ async def lead_detail(
 ):
     lead = await session.get(Lead, lead_id)
     if lead is None:
-        raise HTTPException(status_code=404, detail="Лід не знайдено")
+        raise HTTPException(status_code=404, detail="Лид не найден")
 
     result = await session.execute(
         select(Reaction)
@@ -80,7 +80,7 @@ async def update_lead(
 ):
     lead = await session.get(Lead, lead_id)
     if lead is None:
-        raise HTTPException(status_code=404, detail="Лід не знайдено")
+        raise HTTPException(status_code=404, detail="Лид не найден")
 
     lead.status = LeadStatus(status_value)
     lead.assigned_to = assigned_to or None

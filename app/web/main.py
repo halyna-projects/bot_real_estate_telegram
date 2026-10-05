@@ -7,7 +7,7 @@ from app.db import init_db
 from app.web import labels
 from app.web.routes import router, templates
 
-app = FastAPI(title="Кабінет рієлтора — AI-рієлтор для Telegram")
+app = FastAPI(title="Кабинет риелтора — AI-риелтор для Telegram")
 
 templates.env.globals.update(
     status_labels=labels.STATUS_LABELS,
