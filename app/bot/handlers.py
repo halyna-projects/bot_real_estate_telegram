@@ -4,7 +4,7 @@ import logging
 
 from aiogram import Bot, F, Router
 from aiogram.filters import Command
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
 
 from app.ai.prompts import GREETING_MESSAGE
 from app.bot.formatting import format_reaction_confirmation
@@ -39,6 +39,14 @@ async def cmd_start(message: Message) -> None:
         reset_lead_for_new_conversation(lead)
         lead.conversation_history = [{"role": "assistant", "content": GREETING_MESSAGE}]
         await session.commit()
+
+    # A reply keyboard (e.g. "Поделиться номером" from a previous
+    # conversation) and an inline keyboard can't be sent on the same
+    # message, so clear any leftover reply keyboard first via a throwaway
+    # message that's deleted right away — /start should always start from
+    # a visually clean slate.
+    clearing = await message.answer("⁣", reply_markup=ReplyKeyboardRemove())
+    await clearing.delete()
 
     await message.answer(GREETING_MESSAGE, reply_markup=deal_type_menu_keyboard())
 
