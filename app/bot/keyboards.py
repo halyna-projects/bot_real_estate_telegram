@@ -10,9 +10,9 @@ from aiogram.types import (
 from app.models import DealType, Property, PropertyType, ReactionType
 
 REACTION_LABELS = {
-    ReactionType.INTERESTED: "👍 Заинтересовало",
-    ReactionType.WANT_VIEWING: "📅 Хочу просмотр",
-    ReactionType.NOT_SUITABLE: "👎 Не подошло",
+    ReactionType.INTERESTED: "👍 Zanima me",
+    ReactionType.WANT_VIEWING: "📅 Želim razgledanje",
+    ReactionType.NOT_SUITABLE: "👎 Ne odgovara",
 }
 
 
@@ -38,25 +38,25 @@ def property_reaction_keyboard(property_: Property) -> InlineKeyboardMarkup:
 # --- Guided menu (button-driven qualification, alternative to free text) ---
 
 DEAL_TYPE_MENU_LABELS = {
-    DealType.BUY: "🏠 Покупка",
-    DealType.RENT: "🔑 Аренда",
-    DealType.SELL: "💰 Продажа",
+    DealType.BUY: "🏠 Kupovina",
+    DealType.RENT: "🔑 Zakup",
+    DealType.SELL: "💰 Prodaja",
 }
 
-CITY_OPTIONS = ["Подгорица", "Будва", "Котор", "Тиват"]
+CITY_OPTIONS = ["Podgorica", "Budva", "Kotor", "Tivat"]
 
 DISTRICTS_BY_CITY = {
-    "Подгорица": ["Центр", "Горица", "Запад", "Старый Аэродром", "Блок 5/6"],
-    "Будва": ["Старый город", "Бечичи", "Рафаиловичи", "Петровац"],
-    "Котор": ["Старый город", "Доброта", "Муо", "Пераст"],
-    "Тиват": ["Центр", "Доня-Ластва", "Крашичи"],
+    "Podgorica": ["Centar", "Gorica", "Zapad", "Stari aerodrom", "Blok 5/6"],
+    "Budva": ["Stari grad", "Bečići", "Rafailovići", "Petrovac"],
+    "Kotor": ["Stari grad", "Dobrota", "Muo", "Perast"],
+    "Tivat": ["Centar", "Donja Lastva", "Krašići"],
 }
 
 PROPERTY_TYPE_MENU_LABELS = {
-    PropertyType.APARTMENT: "Квартира",
-    PropertyType.HOUSE: "Дом",
-    PropertyType.COMMERCIAL: "Коммерция",
-    PropertyType.LAND: "Земля",
+    PropertyType.APARTMENT: "Stan",
+    PropertyType.HOUSE: "Kuća",
+    PropertyType.COMMERCIAL: "Poslovni prostor",
+    PropertyType.LAND: "Zemljište",
 }
 
 ROOMS_OPTIONS = [1, 2, 3, 4]
@@ -65,16 +65,16 @@ ROOMS_OPTIONS = [1, 2, 3, 4]
 # uses EUR everywhere, rent is monthly, buy/sell is a one-off price.
 BUDGET_RANGES = {
     DealType.RENT: [
-        (300, "до 300 €/мес", "EUR"),
-        (600, "300–600 €/мес", "EUR"),
-        (1_000, "600–1 000 €/мес", "EUR"),
-        (2_000, "свыше 1 000 €/мес", "EUR"),
+        (300, "do 300 €/mes", "EUR"),
+        (600, "300–600 €/mes", "EUR"),
+        (1_000, "600–1 000 €/mes", "EUR"),
+        (2_000, "preko 1 000 €/mes", "EUR"),
     ],
     "default": [
-        (50_000, "до €50 000", "EUR"),
+        (50_000, "do €50 000", "EUR"),
         (100_000, "€50 000–100 000", "EUR"),
         (200_000, "€100 000–200 000", "EUR"),
-        (300_000, "свыше €200 000", "EUR"),
+        (300_000, "preko €200 000", "EUR"),
     ],
 }
 
@@ -103,7 +103,7 @@ def city_menu_keyboard() -> InlineKeyboardMarkup:
 
 def district_menu_keyboard(city: str) -> InlineKeyboardMarkup:
     buttons = [[_menu_button(d, "district", d)] for d in DISTRICTS_BY_CITY.get(city, [])]
-    buttons.append([_menu_button("Любой район", "district", "any")])
+    buttons.append([_menu_button("Bilo koja opština", "district", "any")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
@@ -135,7 +135,7 @@ def budget_menu_keyboard(deal_type: DealType) -> InlineKeyboardMarkup:
 
 def phone_share_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="📱 Поделиться номером", request_contact=True)]],
+        keyboard=[[KeyboardButton(text="📱 Pošalji broj", request_contact=True)]],
         resize_keyboard=True,
         one_time_keyboard=True,
     )
