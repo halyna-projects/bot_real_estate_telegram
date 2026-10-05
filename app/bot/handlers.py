@@ -86,7 +86,7 @@ async def handle_reaction(callback: CallbackQuery, bot: Bot) -> None:
         )
         property_ = await session.get(Property, property_id)
         if property_ is None:
-            await callback.answer("Это объявление больше недоступно.", show_alert=True)
+            await callback.answer("Ovaj oglas više nije dostupan.", show_alert=True)
             return
 
         await record_reaction(session, lead, property_, reaction)
@@ -95,10 +95,10 @@ async def handle_reaction(callback: CallbackQuery, bot: Bot) -> None:
         confirmation_text = format_reaction_confirmation(property_, reaction)
 
     await callback.message.edit_text(confirmation_text, parse_mode="HTML")
-    await callback.answer("Записал вашу реакцию!")
+    await callback.answer("Zabeležio sam vašu reakciju!")
 
     realtor_note = (
-        f"📩 Реакция клиента {callback.from_user.full_name}: "
+        f"📩 Reakcija klijenta {callback.from_user.full_name}: "
         f"{reaction.value} — {property_.title}"
     )
     await notify_realtor(bot, realtor_note)
