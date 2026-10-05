@@ -70,6 +70,28 @@ def test_heuristic_reply_remembers_a_historical_bare_number_answer():
     assert "комнат" not in result.reply_text.lower()
 
 
+def test_heuristic_reply_honors_fields_already_set_via_the_button_menu():
+    # Regression: the button menu writes straight onto the Lead row and
+    # never touches conversation_history, so a lead that picked deal_type/
+    # city/etc. via buttons and then typed their phone as free text (an
+    # explicitly supported alternative to the "share contact" button) used
+    # to have heuristic_reply re-ask "покупка, аренда или продажа?" as if
+    # nothing had been answered yet, because it only knew about fields
+    # mentioned in conversation_history.
+    known_fields = {
+        "deal_type": "buy",
+        "city": "Будва",
+        "property_type": "apartment",
+        "rooms": 2,
+        "budget_max": 100000,
+    }
+    history = [{"role": "assistant", "content": "Оставьте, пожалуйста, номер телефона для связи."}]
+    result = heuristic_reply(history, "+38267123456", known_fields)
+    assert result.profile_updates["phone"] == "+38267123456"
+    assert "покупка" not in result.reply_text.lower()
+    assert "сейчас подберу" in result.reply_text.lower()
+
+
 def test_heuristic_reply_does_not_misread_its_own_greeting_as_an_answer():
     # Regression: the greeting itself asks "покупка, аренда или продажа?",
     # which used to be re-scanned as if the client had said it, making the

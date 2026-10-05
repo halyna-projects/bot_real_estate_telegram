@@ -44,12 +44,15 @@ class DialogueEngine:
         return self._client is not None
 
     def next_reply(
-        self, conversation_history: list[dict[str, Any]], user_message: str
+        self,
+        conversation_history: list[dict[str, Any]],
+        user_message: str,
+        known_fields: dict[str, Any] | None = None,
     ) -> DialogueResult:
         if not self.is_live:
             from app.ai.fallback import heuristic_reply
 
-            return heuristic_reply(conversation_history, user_message)
+            return heuristic_reply(conversation_history, user_message, known_fields)
 
         messages = list(conversation_history) + [
             {"role": "user", "content": user_message}
@@ -58,11 +61,20 @@ class DialogueEngine:
         profile_updates: dict[str, Any] = {}
         classification: dict[str, Any] | None = None
 
+        system = SYSTEM_PROMPT
+        if known_fields:
+            system += (
+                "\n\nУже известно о клиенте (например, выбрано через кнопки меню "
+                f"ранее в этом диалоге): {known_fields}. Не переспрашивай это "
+                "повторно — учитывай при следующем вопросе и вызове "
+                "update_lead_profile."
+            )
+
         for _ in range(MAX_TOOL_ITERATIONS):
             response = self._client.messages.create(
                 model=self.settings.anthropic_model,
                 max_tokens=1024,
-                system=SYSTEM_PROMPT,
+                system=system,
                 tools=TOOLS,
                 messages=messages,
             )
@@ -75,7 +87,7 @@ class DialogueEngine:
                     block.text for block in response.content if block.type == "text"
                 ).strip()
                 return DialogueResult(
-                    reply_text=reply_text or "Розкажіть, будь ласка, трохи детальніше.",
+                    reply_text=reply_text or "Расскажите, пожалуйста, немного подробнее.",
                     profile_updates=profile_updates,
                     classification=classification,
                     conversation_history=messages,
@@ -108,7 +120,7 @@ class DialogueEngine:
 
         logger.warning("DialogueEngine: max tool iterations reached without final text reply")
         return DialogueResult(
-            reply_text="Дякую за інформацію! Зараз підберу варіанти.",
+            reply_text="Спасибо за информацию! Сейчас подберу варианты.",
             profile_updates=profile_updates,
             classification=classification,
             conversation_history=messages,

@@ -140,13 +140,17 @@ def _extract_with_pending(text: str, pending_field: str | None) -> dict[str, Any
 
 
 def heuristic_reply(
-    conversation_history: list[dict[str, Any]], user_message: str
+    conversation_history: list[dict[str, Any]],
+    user_message: str,
+    known_fields: dict[str, Any] | None = None,
 ) -> DialogueResult:
     # Replay the whole conversation chronologically, tracking which field
     # each bot question was asking about, so a bare-number answer anywhere
     # in the history (not just the current turn) resolves to the right
-    # field instead of being lost on every subsequent turn.
-    known: dict[str, Any] = {}
+    # field instead of being lost on every subsequent turn. Seeded with
+    # known_fields first (e.g. already picked via the button menu, which
+    # never writes to conversation_history) so those are never re-asked.
+    known: dict[str, Any] = dict(known_fields or {})
     pending_field: str | None = None
     for msg in conversation_history:
         content = msg.get("content")

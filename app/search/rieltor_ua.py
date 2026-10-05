@@ -102,7 +102,7 @@ def _parse_card(card, city: str) -> ScrapedListing | None:
     external_id = url.rstrip("/").split("/")[-1]
 
     title_el = card.select_one("[data-qa='offer-title'], .offer-title, h3, h2")
-    title = title_el.get_text(strip=True) if title_el else "Оголошення без назви"
+    title = title_el.get_text(strip=True) if title_el else "Объявление без названия"
 
     price_el = card.select_one("[data-qa='offer-price'], .offer-price, .price")
     price = 0

@@ -15,7 +15,7 @@ from app.models import DealType, Property, PropertySource, PropertyType
 
 SAMPLE_PROPERTIES = [
     dict(
-        title="Центр, 2к, 65м²",
+        title="Улица 1, 2к, 65м²",
         city="Подгорица",
         district="Центр",
         property_type=PropertyType.APARTMENT,
@@ -27,7 +27,7 @@ SAMPLE_PROPERTIES = [
         description="Уютная двухкомнатная квартира в центре, евроремонт.",
     ),
     dict(
-        title="Блок 5/6, 1к, 42м²",
+        title="Улица 2, 1к, 42м²",
         city="Подгорица",
         district="Блок 5/6",
         property_type=PropertyType.APARTMENT,
@@ -39,7 +39,7 @@ SAMPLE_PROPERTIES = [
         description="Однокомнатная квартира возле новой застройки.",
     ),
     dict(
-        title="Старый город, 3к, 88м²",
+        title="Улица 3, 3к, 88м²",
         city="Котор",
         district="Старый город",
         property_type=PropertyType.APARTMENT,
@@ -51,7 +51,7 @@ SAMPLE_PROPERTIES = [
         description="Просторная трёхкомнатная квартира с видом на крепость.",
     ),
     dict(
-        title="Бечичи, 2к, 55м² в аренду",
+        title="Улица 4, 2к, 55м² в аренду",
         city="Будва",
         district="Бечичи",
         property_type=PropertyType.APARTMENT,
@@ -63,7 +63,7 @@ SAMPLE_PROPERTIES = [
         description="Аренда в 5 минутах от пляжа, полностью меблирована.",
     ),
     dict(
-        title="Доня-Ластва, 1к, 38м² в аренду",
+        title="Улица 5, 1к, 38м² в аренду",
         city="Тиват",
         district="Доня-Ластва",
         property_type=PropertyType.APARTMENT,
@@ -75,7 +75,7 @@ SAMPLE_PROPERTIES = [
         description="Компактная квартира в аренду рядом с центром и марина.",
     ),
     dict(
-        title="Дом в пригороде Будвы, 4к, 150м²",
+        title="Улица 6, дом 4к, 150м²",
         city="Будва",
         district="Петровац",
         property_type=PropertyType.HOUSE,
