@@ -3,13 +3,14 @@ has something to match against out of the box. Run with:
 
     python -m app.seed_data
 
-The search filter (app/search/internal.py) matches on exact city, exact
-rooms count and price <= budget_max, so a sparse sample set makes it very
-easy for a live demo to hit "no results" just by picking an unlucky
-rooms/budget combination in the button menu. To avoid that, every
-(rooms x budget-bracket) combination from the menu's own options
-(keyboards.ROOMS_OPTIONS x keyboards.BUDGET_RANGES) is covered by at least
-one apartment listing per city and deal type.
+The search filter (app/search/internal.py) matches on exact deal type,
+exact property type, exact rooms count and price <= budget_max, so a
+sparse sample set makes it very easy for a live demo to hit "no results"
+just by picking an unlucky combination of menu buttons. To avoid that,
+every (deal type x property type x rooms x budget bracket) combination
+the menu itself can produce is covered by at least one listing per city —
+built directly from keyboards.DEAL_TYPE's options, ROOMS_OPTIONS and
+BUDGET_RANGES so this can't drift out of sync with the menu again.
 """
 
 from __future__ import annotations
@@ -18,82 +19,50 @@ import asyncio
 
 from sqlalchemy import select
 
+from app.bot.keyboards import BUDGET_RANGES, CITY_OPTIONS, DISTRICTS_BY_CITY, ROOMS_OPTIONS
 from app.db import async_session_factory, init_db
 from app.models import DealType, Property, PropertySource, PropertyType
 
-_DISTRICTS = {
-    "Podgorica": ["Centar", "Gorica", "Zapad", "Stari aerodrom", "Blok 5/6"],
-    "Budva": ["Stari grad", "Bečići", "Rafailovići", "Petrovac"],
-    "Kotor": ["Stari grad", "Dobrota", "Muo", "Perast"],
-    "Tivat": ["Centar", "Donja Lastva", "Krašići"],
-}
-
-_ROOMS = [1, 2, 3, 4]
-
-# One price per budget bracket from keyboards.BUDGET_RANGES, safely under
-# each bracket's upper bound, so every bracket button finds a match.
-_RENT_PRICES = [280, 550, 900, 1800]  # brackets: <=300, <=600, <=1000, <=2000
-_BUY_PRICES = [45_000, 95_000, 180_000, 280_000]  # brackets: <=50k, <=100k, <=200k, <=300k
+_PROPERTY_TYPES = [
+    PropertyType.APARTMENT,
+    PropertyType.HOUSE,
+    PropertyType.COMMERCIAL,
+    PropertyType.LAND,
+]
+_DEAL_TYPES = [DealType.BUY, DealType.RENT, DealType.SELL]
 
 SAMPLE_PROPERTIES: list[dict] = []
 
 _street = 0
-for city, districts in _DISTRICTS.items():
-    for rooms in _ROOMS:
-        for price in _RENT_PRICES:
-            _street += 1
-            area = 25 + rooms * 18
-            SAMPLE_PROPERTIES.append(
-                dict(
-                    title=f"Ulica {_street}, {rooms} sobe, {area}m² — izdavanje",
-                    city=city,
-                    district=districts[_street % len(districts)],
-                    property_type=PropertyType.APARTMENT,
-                    deal_type=DealType.RENT,
-                    rooms=rooms,
-                    area_sqm=area,
-                    price=price,
-                    currency="EUR",
-                    description="Stan za izdavanje, useljiv odmah.",
-                )
-            )
-        for price in _BUY_PRICES:
-            _street += 1
-            area = 28 + rooms * 20
-            SAMPLE_PROPERTIES.append(
-                dict(
-                    title=f"Ulica {_street}, {rooms} sobe, {area}m²",
-                    city=city,
-                    district=districts[_street % len(districts)],
-                    property_type=PropertyType.APARTMENT,
-                    deal_type=DealType.BUY,
-                    rooms=rooms,
-                    area_sqm=area,
-                    price=price,
-                    currency="EUR",
-                    description="Stan na prodaju, dobra lokacija.",
-                )
-            )
-
-# A couple of houses per city too (rent/buy, mid rooms counts) so that
-# menu path isn't a dead end either, without going for full coverage.
-for city, districts in _DISTRICTS.items():
-    for rooms, price in [(3, 160_000), (4, 260_000)]:
-        _street += 1
-        SAMPLE_PROPERTIES.append(
-            dict(
-                title=f"Ulica {_street}, kuća {rooms} sobe, {rooms * 40}m²",
-                city=city,
-                district=districts[0],
-                property_type=PropertyType.HOUSE,
-                deal_type=DealType.BUY,
-                rooms=rooms,
-                area_sqm=rooms * 40,
-                price=price,
-                currency="EUR",
-                description="Kuća sa placem, useljiva odmah.",
-            )
-        )
+for city in CITY_OPTIONS:
+    districts = DISTRICTS_BY_CITY[city]
+    for property_type in _PROPERTY_TYPES:
+        for deal_type in _DEAL_TYPES:
+            # Same lookup the menu itself uses in keyboards.budget_menu_keyboard,
+            # so buy/sell share the "default" brackets exactly like the real UI.
+            ranges = BUDGET_RANGES.get(deal_type, BUDGET_RANGES["default"])
+            for rooms in ROOMS_OPTIONS:
+                for amount, _label, currency in ranges:
+                    _street += 1
+                    price = int(amount * 0.9)  # safely under this bracket's upper bound
+                    area = 20 + rooms * 18
+                    title = f"Ulica {_street}, {rooms} sobe, {area}m²"
+                    if deal_type == DealType.RENT:
+                        title += " — izdavanje"
+                    SAMPLE_PROPERTIES.append(
+                        dict(
+                            title=title,
+                            city=city,
+                            district=districts[_street % len(districts)],
+                            property_type=property_type,
+                            deal_type=deal_type,
+                            rooms=rooms,
+                            area_sqm=area,
+                            price=price,
+                            currency=currency,
+                            description="Demo oglas za prezentaciju.",
+                        )
+                    )
 
 
 async def seed() -> None:
