@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     web_admin_password: str = "change-me"
 
     rieltor_ua_max_price_usd: int = 100_000
-    rieltor_ua_allowed_cities: str = "Київ,Львів"
+    rieltor_ua_allowed_cities: str = "Киев,Львов"
     rieltor_ua_base_url: str = "https://rieltor.ua"
     rieltor_ua_request_timeout: int = 10
 

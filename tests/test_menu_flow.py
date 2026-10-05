@@ -28,20 +28,20 @@ async def test_button_menu_flow_qualifies_lead_step_by_step(session):
     await _apply_menu_choice(lead, "deal_type", "buy")
     assert lead.status == LeadStatus.QUALIFYING
     await _advance("deal_type", target, session, lead, bot)
-    assert "місті" in target.messages[-1].lower()
+    assert "городе" in target.messages[-1].lower()
 
-    await _apply_menu_choice(lead, "city", "Київ")
+    await _apply_menu_choice(lead, "city", "Киев")
     await _advance("city", target, session, lead, bot)
-    assert "районі" in target.messages[-1].lower()
+    assert "районе" in target.messages[-1].lower()
 
     await _apply_menu_choice(lead, "district", "any")
     assert lead.district is None
     await _advance("district", target, session, lead, bot)
-    assert "тип об'єкта" in target.messages[-1].lower()
+    assert "тип объекта" in target.messages[-1].lower()
 
     await _apply_menu_choice(lead, "property_type", "apartment")
     await _advance("property_type", target, session, lead, bot)
-    assert "кімнат" in target.messages[-1].lower()
+    assert "комнат" in target.messages[-1].lower()
 
     await _apply_menu_choice(lead, "rooms", "2")
     assert lead.rooms == 2
@@ -65,9 +65,9 @@ async def test_district_choice_stores_specific_value(session):
     session.add(lead)
     await session.flush()
 
-    await _apply_menu_choice(lead, "city", "Львів")
-    await _apply_menu_choice(lead, "district", "Личаківський")
-    assert lead.district == "Личаківський"
+    await _apply_menu_choice(lead, "city", "Львов")
+    await _apply_menu_choice(lead, "district", "Лычаковский")
+    assert lead.district == "Лычаковский"
 
 
 @pytest.mark.asyncio

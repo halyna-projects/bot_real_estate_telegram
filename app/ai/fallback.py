@@ -15,39 +15,39 @@ from typing import Any
 from app.ai.claude_client import DialogueResult
 
 _DEAL_TYPE_PATTERNS = {
-    "rent": re.compile(r"орен|зня(ти|ла)|найм", re.IGNORECASE),
+    "rent": re.compile(r"аренд|сн(ять|яла|иму)|найм", re.IGNORECASE),
     "sell": re.compile(r"продат|продаж", re.IGNORECASE),
-    "buy": re.compile(r"купит|купівл|придбат", re.IGNORECASE),
+    "buy": re.compile(r"купит|покупк|приобрест", re.IGNORECASE),
 }
 
 _PROPERTY_TYPE_PATTERNS = {
-    "house": re.compile(r"буд(инок|инку)|котедж", re.IGNORECASE),
-    "commercial": re.compile(r"комерц|офіс|магазин", re.IGNORECASE),
-    "land": re.compile(r"землі|ділянк", re.IGNORECASE),
+    "house": re.compile(r"дом[а-я]*|коттедж", re.IGNORECASE),
+    "commercial": re.compile(r"коммерц|офис|магазин", re.IGNORECASE),
+    "land": re.compile(r"земл[а-я]*|участ", re.IGNORECASE),
     "apartment": re.compile(r"квартир", re.IGNORECASE),
 }
 
 _CITY_PATTERNS = {
-    "Київ": re.compile(r"ки[їє]в|kyiv|kiev", re.IGNORECASE),
-    "Львів": re.compile(r"льв[іоа]в|lviv", re.IGNORECASE),
+    "Киев": re.compile(r"ки[ей]в|kyiv|kiev", re.IGNORECASE),
+    "Львов": re.compile(r"льв[оа]в|lviv", re.IGNORECASE),
 }
 
-_ROOMS_RE = re.compile(r"(\d+)\s*[-]?\s*к(імн|імнат|)")
+_ROOMS_RE = re.compile(r"(\d+)\s*[-]?\s*к(омн|омнат|)")
 _PHONE_RE = re.compile(r"(\+?380\d{9}|0\d{9})")
 _BUDGET_RE = re.compile(
     r"(?P<amount>\d[\d\s]{2,})\s*(?P<currency>usd|\$|грн|uah|eur|€)?", re.IGNORECASE
 )
-_URGENT_RE = re.compile(r"термін|швидко|цього тижня|негайно|якнайшвидше", re.IGNORECASE)
+_URGENT_RE = re.compile(r"срочно|быстро|на этой неделе|немедленно|как можно скорее", re.IGNORECASE)
 
 _CURRENCY_MAP = {"$": "USD", "usd": "USD", "грн": "UAH", "uah": "UAH", "eur": "EUR", "€": "EUR"}
 
 _QUESTIONS_ORDER = [
-    ("deal_type", "Уточніть, будь ласка: купівля, оренда чи продаж?"),
-    ("city", "У якому місті шукаємо (Київ чи Львів)?"),
-    ("property_type", "Який тип об'єкта цікавить: квартира, будинок, комерція чи земля?"),
-    ("rooms", "Скільки кімнат потрібно?"),
-    ("budget_max", "Який орієнтовний бюджет?"),
-    ("phone", "Залиште, будь ласка, номер телефону для зв'язку."),
+    ("deal_type", "Уточните, пожалуйста: покупка, аренда или продажа?"),
+    ("city", "В каком городе ищем (Киев или Львов)?"),
+    ("property_type", "Какой тип объекта интересует: квартира, дом, коммерция или земля?"),
+    ("rooms", "Сколько комнат нужно?"),
+    ("budget_max", "Какой ориентировочный бюджет?"),
+    ("phone", "Оставьте, пожалуйста, номер телефона для связи."),
 ]
 
 
@@ -101,7 +101,7 @@ def classify(fields: dict[str, Any], text: str) -> dict[str, Any] | None:
         temperature = "cold"
     return {
         "temperature": temperature,
-        "urgency": "терміново" if is_urgent else "не вказано",
+        "urgency": "срочно" if is_urgent else "не указано",
     }
 
 
@@ -159,10 +159,10 @@ def heuristic_reply(
             break
 
     if fields:
-        reply = "Дякую, записав! "
-        reply += next_question or "Зараз підберу варіанти під ваш запит."
+        reply = "Спасибо, записал! "
+        reply += next_question or "Сейчас подберу варианты под ваш запрос."
     else:
-        reply = next_question or "Розкажіть, будь ласка, детальніше про ваш запит."
+        reply = next_question or "Расскажите, пожалуйста, подробнее о вашем запросе."
 
     history = list(conversation_history) + [
         {"role": "user", "content": user_message},

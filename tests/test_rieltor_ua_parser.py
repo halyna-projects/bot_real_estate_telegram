@@ -26,7 +26,7 @@ SAMPLE_HTML = """
 
 
 def test_parse_listing_page_extracts_expected_fields():
-    listings = parse_listing_page(SAMPLE_HTML, city="Київ")
+    listings = parse_listing_page(SAMPLE_HTML, city="Киев")
     assert len(listings) == 2
 
     first = listings[0]
@@ -45,5 +45,5 @@ def test_parse_listing_page_extracts_expected_fields():
 
 
 def test_parse_listing_page_ignores_malformed_cards():
-    listings = parse_listing_page("<div class='offer-card'></div>", city="Київ")
+    listings = parse_listing_page("<div class='offer-card'></div>", city="Киев")
     assert listings == []

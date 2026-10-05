@@ -10,9 +10,9 @@ from aiogram.types import (
 from app.models import DealType, Property, PropertyType, ReactionType
 
 REACTION_LABELS = {
-    ReactionType.INTERESTED: "👍 Зацікавило",
-    ReactionType.WANT_VIEWING: "📅 Хочу перегляд",
-    ReactionType.NOT_SUITABLE: "👎 Не підійшло",
+    ReactionType.INTERESTED: "👍 Заинтересовало",
+    ReactionType.WANT_VIEWING: "📅 Хочу просмотр",
+    ReactionType.NOT_SUITABLE: "👎 Не подошло",
 }
 
 
@@ -38,22 +38,22 @@ def property_reaction_keyboard(property_: Property) -> InlineKeyboardMarkup:
 # --- Guided menu (button-driven qualification, alternative to free text) ---
 
 DEAL_TYPE_MENU_LABELS = {
-    DealType.BUY: "🏠 Купівля",
-    DealType.RENT: "🔑 Оренда",
-    DealType.SELL: "💰 Продаж",
+    DealType.BUY: "🏠 Покупка",
+    DealType.RENT: "🔑 Аренда",
+    DealType.SELL: "💰 Продажа",
 }
 
-CITY_OPTIONS = ["Київ", "Львів"]
+CITY_OPTIONS = ["Киев", "Львов"]
 
 DISTRICTS_BY_CITY = {
-    "Київ": ["Шевченківський", "Печерський", "Солом'янський", "Оболонський", "Дарницький"],
-    "Львів": ["Личаківський", "Залізничний", "Галицький", "Сихівський"],
+    "Киев": ["Шевченковский", "Печерский", "Соломенский", "Оболонский", "Дарницкий"],
+    "Львов": ["Лычаковский", "Железнодорожный", "Галицкий", "Сыховский"],
 }
 
 PROPERTY_TYPE_MENU_LABELS = {
     PropertyType.APARTMENT: "Квартира",
-    PropertyType.HOUSE: "Будинок",
-    PropertyType.COMMERCIAL: "Комерція",
+    PropertyType.HOUSE: "Дом",
+    PropertyType.COMMERCIAL: "Коммерция",
     PropertyType.LAND: "Земля",
 }
 
@@ -66,13 +66,13 @@ BUDGET_RANGES = {
         (15_000, "до 15 000 грн", "UAH"),
         (30_000, "15 000–30 000 грн", "UAH"),
         (50_000, "30 000–50 000 грн", "UAH"),
-        (80_000, "понад 50 000 грн", "UAH"),
+        (80_000, "свыше 50 000 грн", "UAH"),
     ],
     "default": [
         (50_000, "до $50 000", "USD"),
         (100_000, "$50 000–100 000", "USD"),
         (200_000, "$100 000–200 000", "USD"),
-        (300_000, "понад $200 000", "USD"),
+        (300_000, "свыше $200 000", "USD"),
     ],
 }
 
@@ -101,7 +101,7 @@ def city_menu_keyboard() -> InlineKeyboardMarkup:
 
 def district_menu_keyboard(city: str) -> InlineKeyboardMarkup:
     buttons = [[_menu_button(d, "district", d)] for d in DISTRICTS_BY_CITY.get(city, [])]
-    buttons.append([_menu_button("Будь-який район", "district", "any")])
+    buttons.append([_menu_button("Любой район", "district", "any")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
@@ -133,7 +133,7 @@ def budget_menu_keyboard(deal_type: DealType) -> InlineKeyboardMarkup:
 
 def phone_share_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="📱 Поділитися номером", request_contact=True)]],
+        keyboard=[[KeyboardButton(text="📱 Поделиться номером", request_contact=True)]],
         resize_keyboard=True,
         one_time_keyboard=True,
     )

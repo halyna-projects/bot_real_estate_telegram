@@ -3,14 +3,14 @@ from app.ai.prompts import GREETING_MESSAGE
 
 
 def test_extract_deal_type_and_city():
-    fields = extract_fields("Хочу купити квартиру у Києві")
+    fields = extract_fields("Хочу купить квартиру в Киеве")
     assert fields["deal_type"] == "buy"
     assert fields["property_type"] == "apartment"
-    assert fields["city"] == "Київ"
+    assert fields["city"] == "Киев"
 
 
 def test_extract_rooms_budget_phone():
-    fields = extract_fields("Потрібно 2 кімнати, бюджет 95000 usd, телефон +380501234567")
+    fields = extract_fields("Нужно 2 комнаты, бюджет 95000 usd, телефон +380501234567")
     assert fields["rooms"] == 2
     assert fields["budget_max"] == 95000
     assert fields["budget_currency"] == "USD"
@@ -19,32 +19,32 @@ def test_extract_rooms_budget_phone():
 
 def test_classify_hot_when_urgent_and_has_core_data():
     fields = {"budget_max": 95000, "phone": "+380501234567"}
-    result = classify(fields, "Потрібно терміново, цього тижня")
+    result = classify(fields, "Нужно срочно, на этой неделе")
     assert result["temperature"] == "hot"
 
 
 def test_classify_cold_without_core_data():
-    result = classify({}, "просто дивлюсь варіанти")
+    result = classify({}, "просто смотрю варианты")
     assert result is None
 
 
 def test_heuristic_reply_asks_for_missing_field():
-    result = heuristic_reply([], "Хочу купити квартиру")
+    result = heuristic_reply([], "Хочу купить квартиру")
     assert result.profile_updates["deal_type"] == "buy"
-    assert "місто" in result.reply_text.lower() or "київ" in result.reply_text.lower()
+    assert "город" in result.reply_text.lower() or "киев" in result.reply_text.lower()
 
 
 def test_heuristic_reply_understands_bare_number_answering_rooms_question():
-    # Regression: a bare "2" in reply to "Скільки кімнат потрібно?" used to be
+    # Regression: a bare "2" in reply to "Сколько комнат нужно?" used to be
     # silently dropped, so the bot re-asked the same question forever.
-    history = [{"role": "assistant", "content": "Скільки кімнат потрібно?"}]
+    history = [{"role": "assistant", "content": "Сколько комнат нужно?"}]
     result = heuristic_reply(history, "2")
     assert result.profile_updates["rooms"] == 2
-    assert "кімнат" not in result.reply_text.lower()
+    assert "комнат" not in result.reply_text.lower()
 
 
 def test_heuristic_reply_understands_bare_number_answering_budget_question():
-    history = [{"role": "assistant", "content": "Який орієнтовний бюджет?"}]
+    history = [{"role": "assistant", "content": "Какой ориентировочный бюджет?"}]
     result = heuristic_reply(history, "90000")
     assert result.profile_updates["budget_max"] == 90000
 
@@ -59,24 +59,24 @@ def test_heuristic_reply_remembers_a_historical_bare_number_answer():
     # Regression: a bare "2" answering the rooms question several turns ago
     # used to be forgotten on later turns (the re-scan of history couldn't
     # tell it was answering "rooms" without knowing what was asked at the
-    # time), so the bot re-asked "Скільки кімнат потрібно?" after every
+    # time), so the bot re-asked "Сколько комнат нужно?" after every
     # subsequent answer instead of moving on.
     history = [
-        {"role": "assistant", "content": "Скільки кімнат потрібно?"},
+        {"role": "assistant", "content": "Сколько комнат нужно?"},
         {"role": "user", "content": "2"},
-        {"role": "assistant", "content": "Залиште, будь ласка, номер телефону для зв'язку."},
+        {"role": "assistant", "content": "Оставьте, пожалуйста, номер телефона для связи."},
     ]
     result = heuristic_reply(history, "0501234567")
-    assert "кімнат" not in result.reply_text.lower()
+    assert "комнат" not in result.reply_text.lower()
 
 
 def test_heuristic_reply_does_not_misread_its_own_greeting_as_an_answer():
-    # Regression: the greeting itself asks "купівля, оренда чи продаж?",
+    # Regression: the greeting itself asks "покупка, аренда или продажа?",
     # which used to be re-scanned as if the client had said it, making the
     # bot think deal_type (and everything else) was already known after a
-    # single real answer, and jump straight to "Зараз підберу варіанти".
+    # single real answer, and jump straight to "Сейчас подберу варианты".
     history = [{"role": "assistant", "content": GREETING_MESSAGE}]
-    result = heuristic_reply(history, "купівля")
+    result = heuristic_reply(history, "покупка")
     assert result.profile_updates["deal_type"] == "buy"
-    assert "міст" in result.reply_text.lower()
-    assert "зараз підберу" not in result.reply_text.lower()
+    assert "город" in result.reply_text.lower()
+    assert "сейчас подберу" not in result.reply_text.lower()

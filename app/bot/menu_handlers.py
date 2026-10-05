@@ -26,12 +26,12 @@ logger = logging.getLogger(__name__)
 router = Router(name="menu_flow")
 
 _CHOICE_LABELS = {
-    "buy": "Купівля",
-    "rent": "Оренда",
-    "sell": "Продаж",
+    "buy": "Покупка",
+    "rent": "Аренда",
+    "sell": "Продажа",
     "apartment": "Квартира",
-    "house": "Будинок",
-    "commercial": "Комерція",
+    "house": "Дом",
+    "commercial": "Коммерция",
     "land": "Земля",
 }
 
@@ -48,7 +48,7 @@ async def _apply_menu_choice(lead: Lead, field: str, value: str) -> str:
         label = value
     elif field == "district":
         lead.district = None if value == "any" else value
-        label = "Будь-який район" if value == "any" else value
+        label = "Любой район" if value == "any" else value
     elif field == "property_type":
         lead.property_type = PropertyType(value)
         label = _CHOICE_LABELS.get(value, value)
@@ -78,7 +78,7 @@ async def _advance(
 
     if field_just_set == "city":
         await target.answer(
-            f"У якому районі ({lead.city}) шукаємо?", reply_markup=district_menu_keyboard(lead.city)
+            f"В каком районе ({lead.city}) ищем?", reply_markup=district_menu_keyboard(lead.city)
         )
         return
 
@@ -89,21 +89,21 @@ async def _advance(
 
     next_field = missing[0]
     if next_field == "deal_type":
-        await target.answer("Що вас цікавить?", reply_markup=deal_type_menu_keyboard())
+        await target.answer("Что вас интересует?", reply_markup=deal_type_menu_keyboard())
     elif next_field == "city":
-        await target.answer("У якому місті шукаємо?", reply_markup=city_menu_keyboard())
+        await target.answer("В каком городе ищем?", reply_markup=city_menu_keyboard())
     elif next_field == "property_type":
-        await target.answer("Який тип об'єкта цікавить?", reply_markup=property_type_menu_keyboard())
+        await target.answer("Какой тип объекта интересует?", reply_markup=property_type_menu_keyboard())
     elif next_field == "rooms":
-        await target.answer("Скільки кімнат потрібно?", reply_markup=rooms_menu_keyboard())
+        await target.answer("Сколько комнат нужно?", reply_markup=rooms_menu_keyboard())
     elif next_field == "budget_max":
         await target.answer(
-            "Який орієнтовний бюджет?", reply_markup=budget_menu_keyboard(lead.deal_type)
+            "Какой ориентировочный бюджет?", reply_markup=budget_menu_keyboard(lead.deal_type)
         )
     elif next_field == "phone":
         await target.answer(
-            "Залиште, будь ласка, номер телефону для зв'язку — натисніть кнопку нижче "
-            "або напишіть його текстом.",
+            "Оставьте, пожалуйста, номер телефона для связи — нажмите кнопку ниже "
+            "или напишите его текстом.",
             reply_markup=phone_share_keyboard(),
         )
 
@@ -128,7 +128,7 @@ async def handle_menu_choice(callback: CallbackQuery, bot: Bot) -> None:
         except Exception:  # noqa: BLE001 - message may already be edited/gone, harmless
             logger.debug("Could not clear menu keyboard", exc_info=True)
 
-        await callback.answer(f"Обрано: {label}")
+        await callback.answer(f"Выбрано: {label}")
         await _advance(field, callback.message, session, lead, bot)
         await session.commit()
 
@@ -146,7 +146,7 @@ async def handle_contact_share(message: Message, bot: Bot) -> None:
         lead.temperature = heuristic_classification(lead)
         await session.flush()
 
-        await message.answer("Дякую! Записав номер.", reply_markup=ReplyKeyboardRemove())
+        await message.answer("Спасибо! Записал номер.", reply_markup=ReplyKeyboardRemove())
 
         if not lead.missing_required_fields():
             await present_search_results(message, session, lead, bot)
