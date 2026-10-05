@@ -88,7 +88,13 @@ def extract_fields(text: str) -> dict[str, Any]:
         fields["phone"] = phone_match.group(1)
 
     budget_match = _BUDGET_RE.search(text)
-    if budget_match and len(budget_match.group("amount").replace(" ", "")) >= 3:
+    # A phone number is itself a long run of digits, so the budget regex
+    # can match the same digits as a (nonsensical) amount when the message
+    # is just a phone number — skip it when the two matches overlap.
+    budget_overlaps_phone = phone_match and budget_match and (
+        budget_match.start() < phone_match.end() and phone_match.start() < budget_match.end()
+    )
+    if budget_match and not budget_overlaps_phone and len(budget_match.group("amount").replace(" ", "")) >= 3:
         amount = int(budget_match.group("amount").replace(" ", ""))
         fields["budget_max"] = amount
         currency = budget_match.group("currency")

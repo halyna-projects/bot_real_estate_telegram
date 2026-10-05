@@ -17,6 +17,16 @@ def test_extract_rooms_budget_phone():
     assert fields["phone"] == "+380501234567"
 
 
+def test_extract_bare_phone_does_not_also_set_a_bogus_budget():
+    # Regression: a message that's just a phone number (e.g. answering the
+    # phone question as free text) used to also match the budget regex
+    # against the same digits, setting a nonsensical budget like
+    # 38212345678 EUR.
+    fields = extract_fields("+38212345678")
+    assert fields["phone"] == "+38212345678"
+    assert "budget_max" not in fields
+
+
 def test_classify_hot_when_urgent_and_has_core_data():
     fields = {"budget_max": 95000, "phone": "+380501234567"}
     result = classify(fields, "Нужно срочно, на этой неделе")
