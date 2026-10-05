@@ -33,7 +33,7 @@ async def main() -> None:
     dispatcher.include_router(menu_router)
     dispatcher.include_router(router)
 
-    logger.info("AI-риелтор бот запущен, use_ai=%s", bool(settings.anthropic_api_key))
+    logger.info("AI real estate bot started, use_ai=%s", bool(settings.anthropic_api_key))
     await dispatcher.start_polling(bot)
 
 

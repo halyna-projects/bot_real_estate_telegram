@@ -26,19 +26,19 @@ logger = logging.getLogger(__name__)
 router = Router(name="menu_flow")
 
 _CHOICE_LABELS = {
-    "buy": "Покупка",
-    "rent": "Аренда",
-    "sell": "Продажа",
-    "apartment": "Квартира",
-    "house": "Дом",
-    "commercial": "Коммерция",
-    "land": "Земля",
+    "buy": "Buy",
+    "rent": "Rent",
+    "sell": "Sell",
+    "apartment": "Apartment",
+    "house": "House",
+    "commercial": "Commercial",
+    "land": "Land",
 }
 
 
 async def _apply_menu_choice(lead: Lead, field: str, value: str) -> str:
     """Apply one menu selection onto the lead and return a short label for
-    the "Обрано: ..." confirmation toast."""
+    the "Selected: ..." confirmation toast."""
 
     if field == "deal_type":
         lead.deal_type = DealType(value)
@@ -48,7 +48,7 @@ async def _apply_menu_choice(lead: Lead, field: str, value: str) -> str:
         label = value
     elif field == "district":
         lead.district = None if value == "any" else value
-        label = "Любой район" if value == "any" else value
+        label = "Any neighborhood" if value == "any" else value
     elif field == "property_type":
         lead.property_type = PropertyType(value)
         label = _CHOICE_LABELS.get(value, value)
@@ -59,7 +59,7 @@ async def _apply_menu_choice(lead: Lead, field: str, value: str) -> str:
         amount_str, currency = value.split("_", 1)
         lead.budget_max = int(amount_str)
         lead.budget_currency = currency
-        label = f"до {int(amount_str):,} {currency}".replace(",", " ")
+        label = f"up to {int(amount_str):,} {currency}".replace(",", " ")
     else:
         label = value
 
@@ -78,7 +78,7 @@ async def _advance(
 
     if field_just_set == "city":
         await target.answer(
-            f"В каком районе ({lead.city}) ищем?", reply_markup=district_menu_keyboard(lead.city)
+            f"Which neighborhood in {lead.city}?", reply_markup=district_menu_keyboard(lead.city)
         )
         return
 
@@ -89,21 +89,21 @@ async def _advance(
 
     next_field = missing[0]
     if next_field == "deal_type":
-        await target.answer("Что вас интересует?", reply_markup=deal_type_menu_keyboard())
+        await target.answer("What are you interested in?", reply_markup=deal_type_menu_keyboard())
     elif next_field == "city":
-        await target.answer("В каком городе ищем?", reply_markup=city_menu_keyboard())
+        await target.answer("Which city are we searching in?", reply_markup=city_menu_keyboard())
     elif next_field == "property_type":
-        await target.answer("Какой тип объекта интересует?", reply_markup=property_type_menu_keyboard())
+        await target.answer("What type of property are you interested in?", reply_markup=property_type_menu_keyboard())
     elif next_field == "rooms":
-        await target.answer("Сколько комнат нужно?", reply_markup=rooms_menu_keyboard())
+        await target.answer("How many bedrooms do you need?", reply_markup=rooms_menu_keyboard())
     elif next_field == "budget_max":
         await target.answer(
-            "Какой ориентировочный бюджет?", reply_markup=budget_menu_keyboard(lead.deal_type)
+            "What's your approximate budget?", reply_markup=budget_menu_keyboard(lead.deal_type)
         )
     elif next_field == "phone":
         await target.answer(
-            "Оставьте, пожалуйста, номер телефона для связи — нажмите кнопку ниже "
-            "или напишите его текстом.",
+            "Please leave a phone number so we can reach you — tap the button "
+            "below or type it as text.",
             reply_markup=phone_share_keyboard(),
         )
 
@@ -128,7 +128,7 @@ async def handle_menu_choice(callback: CallbackQuery, bot: Bot) -> None:
         except Exception:  # noqa: BLE001 - message may already be edited/gone, harmless
             logger.debug("Could not clear menu keyboard", exc_info=True)
 
-        await callback.answer(f"Выбрано: {label}")
+        await callback.answer(f"Selected: {label}")
         await _advance(field, callback.message, session, lead, bot)
         await session.commit()
 
@@ -146,7 +146,7 @@ async def handle_contact_share(message: Message, bot: Bot) -> None:
         lead.temperature = heuristic_classification(lead)
         await session.flush()
 
-        await message.answer("Спасибо! Записал номер.", reply_markup=ReplyKeyboardRemove())
+        await message.answer("Thanks! Got your number.", reply_markup=ReplyKeyboardRemove())
 
         if not lead.missing_required_fields():
             await present_search_results(message, session, lead, bot)

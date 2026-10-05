@@ -30,11 +30,11 @@ async def present_search_results(
 
     if not properties:
         await target.answer(
-            "К сожалению, сейчас нет вариантов под ваш запрос. Риелтор свяжется "
-            "с вами, как только появится что-то подходящее."
+            "Unfortunately there are no listings matching your request right now. "
+            "An agent will reach out as soon as something suitable comes up."
         )
     else:
-        await target.answer(f"Нашёл {len(properties)} вариант(ов) под ваш запрос:")
+        await target.answer(f"Found {len(properties)} listing(s) matching your request:")
         for prop in properties:
             await target.answer(
                 format_property_card(prop),

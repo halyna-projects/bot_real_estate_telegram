@@ -57,7 +57,7 @@ def reset_lead_for_new_conversation(lead: Lead) -> None:
     lead.rooms = None
     lead.budget_min = None
     lead.budget_max = None
-    lead.budget_currency = "EUR"
+    lead.budget_currency = "CAD"
     lead.phone = None
     lead.temperature = None
     lead.urgency = None
@@ -112,7 +112,7 @@ async def record_reaction(
 
     if reaction == ReactionType.WANT_VIEWING:
         lead.status = LeadStatus.VIEWING_SCHEDULED
-        lead.next_action = f"Назначить просмотр: {property_.title}"
+        lead.next_action = f"Schedule a viewing: {property_.title}"
     elif reaction == ReactionType.INTERESTED and lead.status in (
         LeadStatus.NEW,
         LeadStatus.QUALIFYING,
