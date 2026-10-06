@@ -123,10 +123,17 @@ async def handle_menu_choice(callback: CallbackQuery, bot: Bot) -> None:
         label = await _apply_menu_choice(lead, field, value)
         await session.flush()
 
+        # Append the selection to the question itself (instead of just
+        # clearing the keyboard) so the chosen answer stays visible in the
+        # chat history, the same way a typed reply would -- otherwise the
+        # buttons vanish and there's no permanent record of what was picked.
         try:
-            await callback.message.edit_reply_markup(reply_markup=None)
+            original_text = callback.message.text or ""
+            await callback.message.edit_text(
+                f"{original_text}\n\n✅ {label}", reply_markup=None
+            )
         except Exception:  # noqa: BLE001 - message may already be edited/gone, harmless
-            logger.debug("Could not clear menu keyboard", exc_info=True)
+            logger.debug("Could not update menu message", exc_info=True)
 
         await callback.answer(f"Izabrano: {label}")
         await _advance(field, callback.message, session, lead, bot)
