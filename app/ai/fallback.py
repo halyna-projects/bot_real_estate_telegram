@@ -180,6 +180,10 @@ def heuristic_reply(
 
     if fields:
         reply = "Спасибо, записал! "
+        if "phone" in fields:
+            # Echo the number back so a typo is immediately visible to the
+            # client, instead of silently saving a wrong number.
+            reply += f"Номер телефона сохранён: {fields['phone']}. "
         reply += next_question or "Сейчас подберу варианты под ваш запрос."
     else:
         reply = next_question or "Расскажите, пожалуйста, подробнее о вашем запросе."
