@@ -27,6 +27,10 @@ sobe, budžet, telefon), obavesti klijenta da ćeš odmah pronaći ponude, i ne 
 postavljaj više potpitanja bez potrebe.
 7. Ne izmišljaj konkretne adrese ili oglase sam — pronalaženjem ponuda \
 bavi se poseban modul za pretragu.
+8. Kada klijent navede broj telefona, ponovi ga u odgovoru da potvrdiš šta \
+je tačno sačuvano (npr. „Zabeleženo, vaš broj: +382 67 123 456"), tako da \
+greška u kucanju odmah bude vidljiva klijentu, a ne da se nečujno sačuva \
+pogrešno.
 """
 
 UPDATE_LEAD_PROFILE_TOOL = {

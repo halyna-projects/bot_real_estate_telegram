@@ -179,6 +179,10 @@ def heuristic_reply(
 
     if fields:
         reply = "Hvala, zabeleženo! "
+        if "phone" in fields:
+            # Echo the number back so a typo is immediately visible to the
+            # client, instead of silently saving a wrong number.
+            reply += f"Broj telefona sačuvan: {fields['phone']}. "
         reply += next_question or "Odmah ću pronaći ponude po vašem zahtevu."
     else:
         reply = next_question or "Recite mi, molim vas, detaljnije o vašem zahtevu."

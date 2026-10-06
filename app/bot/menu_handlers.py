@@ -153,7 +153,9 @@ async def handle_contact_share(message: Message, bot: Bot) -> None:
         lead.temperature = heuristic_classification(lead)
         await session.flush()
 
-        await message.answer("Hvala! Zabeležio sam broj.", reply_markup=ReplyKeyboardRemove())
+        await message.answer(
+            f"Hvala! Zabeležio sam vaš broj: {lead.phone}", reply_markup=ReplyKeyboardRemove()
+        )
 
         if not lead.missing_required_fields():
             await present_search_results(message, session, lead, bot)
