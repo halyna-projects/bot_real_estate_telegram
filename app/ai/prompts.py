@@ -30,6 +30,10 @@ listings right away, and don't ask more follow-up questions unless \
 necessary.
 7. Don't make up specific addresses or listings yourself — finding \
 matching listings is handled by a separate search module.
+8. When the client gives a phone number, repeat it back in your reply to \
+confirm what you saved (e.g. "Got it, saved your number: +1 416 555 1234") \
+so a typo is immediately visible to the client instead of being silently \
+saved wrong.
 """
 
 UPDATE_LEAD_PROFILE_TOOL = {
