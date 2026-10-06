@@ -28,34 +28,34 @@ async def test_button_menu_flow_qualifies_lead_step_by_step(session):
     await _apply_menu_choice(lead, "deal_type", "buy")
     assert lead.status == LeadStatus.QUALIFYING
     await _advance("deal_type", target, session, lead, bot)
-    assert "городе" in target.messages[-1].lower()
+    assert "city" in target.messages[-1].lower()
 
-    await _apply_menu_choice(lead, "city", "Подгорица")
+    await _apply_menu_choice(lead, "city", "Toronto")
     await _advance("city", target, session, lead, bot)
-    assert "районе" in target.messages[-1].lower()
+    assert "neighborhood" in target.messages[-1].lower()
 
     await _apply_menu_choice(lead, "district", "any")
     assert lead.district is None
     await _advance("district", target, session, lead, bot)
-    assert "тип объекта" in target.messages[-1].lower()
+    assert "property" in target.messages[-1].lower()
 
     await _apply_menu_choice(lead, "property_type", "apartment")
     await _advance("property_type", target, session, lead, bot)
-    assert "комнат" in target.messages[-1].lower()
+    assert "bedrooms" in target.messages[-1].lower()
 
     await _apply_menu_choice(lead, "rooms", "2")
     assert lead.rooms == 2
     await _advance("rooms", target, session, lead, bot)
-    assert "бюджет" in target.messages[-1].lower()
+    assert "budget" in target.messages[-1].lower()
 
-    await _apply_menu_choice(lead, "budget", "100000_EUR")
-    assert lead.budget_max == 100000
-    assert lead.budget_currency == "EUR"
+    await _apply_menu_choice(lead, "budget", "650000_CAD")
+    assert lead.budget_max == 650000
+    assert lead.budget_currency == "CAD"
     await _advance("budget", target, session, lead, bot)
-    assert "телефон" in target.messages[-1].lower()
+    assert "phone" in target.messages[-1].lower()
 
     assert lead.missing_required_fields() == ["phone"]
-    lead.phone = "+380501234567"
+    lead.phone = "+14165551234"
     assert lead.is_qualified()
 
 
@@ -65,9 +65,9 @@ async def test_district_choice_stores_specific_value(session):
     session.add(lead)
     await session.flush()
 
-    await _apply_menu_choice(lead, "city", "Котор")
-    await _apply_menu_choice(lead, "district", "Доброта")
-    assert lead.district == "Доброта"
+    await _apply_menu_choice(lead, "city", "Calgary")
+    await _apply_menu_choice(lead, "district", "Kensington")
+    assert lead.district == "Kensington"
 
 
 @pytest.mark.asyncio

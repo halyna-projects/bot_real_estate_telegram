@@ -7,9 +7,9 @@ from app.search.internal import search_internal_properties
 async def _make_property(session, **overrides):
     defaults = dict(
         source=PropertySource.INTERNAL,
-        title="Тестовая квартира",
-        city="Киев",
-        district="Центр",
+        title="Test apartment",
+        city="Toronto",
+        district="Downtown",
         property_type=PropertyType.APARTMENT,
         deal_type=DealType.BUY,
         rooms=2,
@@ -28,7 +28,7 @@ async def _make_lead(session, **overrides):
     defaults = dict(
         telegram_user_id=1,
         deal_type=DealType.BUY,
-        city="Киев",
+        city="Toronto",
         property_type=PropertyType.APARTMENT,
         rooms=2,
         budget_max=100_000,
@@ -43,8 +43,8 @@ async def _make_lead(session, **overrides):
 @pytest.mark.asyncio
 async def test_search_matches_lead_criteria(session):
     match = await _make_property(session)
-    await _make_property(session, city="Львов", title="Другой город")
-    await _make_property(session, price=150_000, title="Задорого")
+    await _make_property(session, city="Calgary", title="Different city")
+    await _make_property(session, price=150_000, title="Too expensive")
 
     lead = await _make_lead(session)
     results = await search_internal_properties(session, lead)

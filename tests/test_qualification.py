@@ -14,18 +14,18 @@ def test_apply_profile_updates_sets_valid_enum_fields():
         {
             "deal_type": "buy",
             "property_type": "apartment",
-            "city": "Подгорица",
+            "city": "Toronto",
             "rooms": 2,
-            "budget_max": 90000,
-            "phone": "+380501234567",
+            "budget_max": 650000,
+            "phone": "+14165551234",
         },
     )
     assert lead.deal_type == DealType.BUY
     assert lead.property_type == PropertyType.APARTMENT
-    assert lead.city == "Подгорица"
+    assert lead.city == "Toronto"
     assert lead.rooms == 2
-    assert lead.budget_max == 90000
-    assert lead.phone == "+380501234567"
+    assert lead.budget_max == 650000
+    assert lead.phone == "+14165551234"
 
 
 def test_apply_profile_updates_ignores_invalid_enum_value():
@@ -41,14 +41,14 @@ def test_reset_lead_for_new_conversation_clears_a_fully_qualified_profile():
         {
             "deal_type": "buy",
             "property_type": "apartment",
-            "city": "Подгорица",
+            "city": "Toronto",
             "rooms": 2,
-            "budget_max": 90000,
-            "phone": "+380501234567",
+            "budget_max": 650000,
+            "phone": "+14165551234",
         },
     )
     lead.temperature = Temperature.HOT
-    lead.conversation_history = [{"role": "user", "content": "2 комнаты"}]
+    lead.conversation_history = [{"role": "user", "content": "2 bedrooms"}]
     assert lead.is_qualified()
 
     reset_lead_for_new_conversation(lead)
@@ -75,11 +75,11 @@ def test_lead_missing_required_fields():
         lead,
         {
             "deal_type": "buy",
-            "city": "Подгорица",
+            "city": "Toronto",
             "property_type": "apartment",
             "rooms": 2,
-            "budget_max": 90000,
-            "phone": "+380501234567",
+            "budget_max": 650000,
+            "phone": "+14165551234",
         },
     )
     assert lead.is_qualified()
@@ -87,13 +87,13 @@ def test_lead_missing_required_fields():
 
 def test_apply_classification_sets_temperature_and_urgency():
     lead = Lead(telegram_user_id=1)
-    apply_classification(lead, {"temperature": "hot", "urgency": "на этой неделе"})
+    apply_classification(lead, {"temperature": "hot", "urgency": "this week"})
     assert lead.temperature == Temperature.HOT
-    assert lead.urgency == "на этой неделе"
+    assert lead.urgency == "this week"
 
 
 def test_heuristic_classification_warm_when_phone_and_budget_present():
-    lead = Lead(telegram_user_id=1, phone="+380501234567", budget_max=90000)
+    lead = Lead(telegram_user_id=1, phone="+14165551234", budget_max=650000)
     assert heuristic_classification(lead) == Temperature.WARM
 
 
