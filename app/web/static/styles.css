@@ -80,6 +80,8 @@ th {
 tr:last-child td { border-bottom: none; }
 tr.lead-row:hover { background: #f8f8ff; cursor: pointer; }
 
+.cell-sub { color: var(--muted); font-size: 12px; }
+
 .badge {
   display: inline-block;
   padding: 3px 10px;
