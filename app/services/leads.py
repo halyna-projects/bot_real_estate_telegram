@@ -93,7 +93,14 @@ async def handle_incoming_message(session: AsyncSession, lead: Lead, text: str) 
     apply_profile_updates(lead, result.profile_updates)
     if result.classification:
         apply_classification(lead, result.classification)
-    elif lead.temperature is None:
+    else:
+        # Always refresh the heuristic temperature here, not just the first
+        # time it's set -- the button menu recomputes it on every click, so
+        # a lead that picked most fields via buttons (setting temperature
+        # to "cold" before a phone/budget existed) and then supplied its
+        # last missing field as free text used to stay stuck at that first
+        # snapshot forever, since this branch only ran when temperature was
+        # still None.
         lead.temperature = heuristic_classification(lead)
 
     lead.conversation_history = result.conversation_history
