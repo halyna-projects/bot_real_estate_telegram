@@ -167,8 +167,14 @@ def heuristic_reply(
                 known.setdefault(key, value)
 
     fields = _extract_with_pending(user_message, pending_field)
-    classification = classify(fields, user_message)
     known.update(fields)
+    # Classify against everything known so far (including fields picked via
+    # the button menu or earlier turns), not just this message's own
+    # extracted fields -- otherwise a turn that only supplies the phone
+    # (budget already set by a button earlier) sees no budget_max in
+    # `fields` alone and gets explicitly classified "cold", overriding the
+    # correct "warm" even though both fields are actually present.
+    classification = classify(known, user_message)
 
     next_question = None
     for key, question in _QUESTIONS_ORDER:
