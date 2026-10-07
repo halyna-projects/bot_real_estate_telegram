@@ -30,6 +30,7 @@ pip install -r requirements.txt
 cp .env.example .env   # і заповніть TELEGRAM_BOT_TOKEN, ANTHROPIC_API_KEY
 
 python -m app.seed_data     # наповнити внутрішню базу тестовими об'єктами
+python -m app.seed_leads    # додати демо-ліди для кабінету рієлтора
 python run_bot.py           # запустити Telegram-бота (long polling)
 python run_web.py           # запустити кабінет рієлтора на http://localhost:8000
 ```
