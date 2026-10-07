@@ -78,6 +78,8 @@ th {
 }
 
 tr:last-child td { border-bottom: none; }
+
+.cell-sub { color: var(--muted); font-size: 12px; }
 tr.lead-row:hover { background: #f8f8ff; cursor: pointer; }
 
 .badge {
