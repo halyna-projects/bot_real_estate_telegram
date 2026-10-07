@@ -100,6 +100,12 @@ def test_heuristic_reply_honors_fields_already_set_via_the_button_menu():
     assert result.profile_updates["phone"] == "+38267123456"
     assert "покупка" not in result.reply_text.lower()
     assert "сейчас подберу" in result.reply_text.lower()
+    # Regression: classify() used to only see this turn's own extracted
+    # fields ({"phone": ...}), missing the budget_max set earlier via the
+    # button menu, so it explicitly classified the lead "cold" even though
+    # phone + budget were both actually present -- overriding what should
+    # have been "warm".
+    assert result.classification["temperature"] == "warm"
 
 
 def test_heuristic_reply_does_not_misread_its_own_greeting_as_an_answer():
