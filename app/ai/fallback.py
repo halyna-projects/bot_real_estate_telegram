@@ -78,7 +78,13 @@ def extract_fields(text: str) -> dict[str, Any]:
         fields["phone"] = phone_match.group(1)
 
     budget_match = _BUDGET_RE.search(text)
-    if budget_match and len(budget_match.group("amount").replace(" ", "")) >= 3:
+    # A phone number is itself a long run of digits, so the budget regex
+    # can match the same digits as a (nonsensical) amount when the message
+    # is just a phone number — skip it when the two matches overlap.
+    budget_overlaps_phone = phone_match and budget_match and (
+        budget_match.start() < phone_match.end() and phone_match.start() < budget_match.end()
+    )
+    if budget_match and not budget_overlaps_phone and len(budget_match.group("amount").replace(" ", "")) >= 3:
         amount = int(budget_match.group("amount").replace(" ", ""))
         fields["budget_max"] = amount
         currency = budget_match.group("currency")
@@ -130,13 +136,17 @@ def _extract_with_pending(text: str, pending_field: str | None) -> dict[str, Any
 
 
 def heuristic_reply(
-    conversation_history: list[dict[str, Any]], user_message: str
+    conversation_history: list[dict[str, Any]],
+    user_message: str,
+    known_fields: dict[str, Any] | None = None,
 ) -> DialogueResult:
     # Replay the whole conversation chronologically, tracking which field
     # each bot question was asking about, so a bare-number answer anywhere
     # in the history (not just the current turn) resolves to the right
-    # field instead of being lost on every subsequent turn.
-    known: dict[str, Any] = {}
+    # field instead of being lost on every subsequent turn. Seeded with
+    # known_fields first (e.g. already picked via the button menu, which
+    # never writes to conversation_history) so those are never re-asked.
+    known: dict[str, Any] = dict(known_fields or {})
     pending_field: str | None = None
     for msg in conversation_history:
         content = msg.get("content")
@@ -149,8 +159,14 @@ def heuristic_reply(
                 known.setdefault(key, value)
 
     fields = _extract_with_pending(user_message, pending_field)
-    classification = classify(fields, user_message)
     known.update(fields)
+    # Classify against everything known so far (including fields picked via
+    # the button menu or earlier turns), not just this message's own
+    # extracted fields -- otherwise a turn that only supplies the phone
+    # (budget already set by a button earlier) sees no budget_max in
+    # `fields` alone and gets explicitly classified "cold", overriding the
+    # correct "warm" even though both fields are actually present.
+    classification = classify(known, user_message)
 
     next_question = None
     for key, question in _QUESTIONS_ORDER:
@@ -160,6 +176,10 @@ def heuristic_reply(
 
     if fields:
         reply = "Дякую, записав! "
+        if "phone" in fields:
+            # Echo the number back so a typo is immediately visible to the
+            # client, instead of silently saving a wrong number.
+            reply += f"Номер телефону збережено: {fields['phone']}. "
         reply += next_question or "Зараз підберу варіанти під ваш запит."
     else:
         reply = next_question or "Розкажіть, будь ласка, детальніше про ваш запит."

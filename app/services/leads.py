@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -63,17 +65,42 @@ def reset_lead_for_new_conversation(lead: Lead) -> None:
     lead.conversation_history = []
 
 
+_KNOWN_FIELD_KEYS = ("deal_type", "city", "property_type", "rooms", "budget_max", "phone")
+
+
+def _known_fields_from_lead(lead: Lead) -> dict[str, Any]:
+    """Fields already set directly on the lead (e.g. via the button menu),
+    so a free-text reply later in the same conversation doesn't re-ask for
+    them — the dialogue engines otherwise only know what's in
+    conversation_history, which the button menu never writes to."""
+
+    known: dict[str, Any] = {}
+    for key in _KNOWN_FIELD_KEYS:
+        value = getattr(lead, key, None)
+        if value is None:
+            continue
+        known[key] = value.value if hasattr(value, "value") else value
+    return known
+
+
 async def handle_incoming_message(session: AsyncSession, lead: Lead, text: str) -> DialogueResult:
     """Run one AI dialogue turn for the lead, persist extracted profile data,
     classification and conversation history."""
 
     engine = get_dialogue_engine()
-    result = engine.next_reply(lead.conversation_history, text)
+    result = engine.next_reply(lead.conversation_history, text, _known_fields_from_lead(lead))
 
     apply_profile_updates(lead, result.profile_updates)
     if result.classification:
         apply_classification(lead, result.classification)
-    elif lead.temperature is None:
+    else:
+        # Always refresh the heuristic temperature here, not just the first
+        # time it's set -- the button menu recomputes it on every click, so
+        # a lead that picked most fields via buttons (setting temperature
+        # to "cold" before a phone/budget existed) and then supplied its
+        # last missing field as free text used to stay stuck at that first
+        # snapshot forever, since this branch only ran when temperature was
+        # still None.
         lead.temperature = heuristic_classification(lead)
 
     lead.conversation_history = result.conversation_history

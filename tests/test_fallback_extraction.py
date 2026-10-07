@@ -17,6 +17,16 @@ def test_extract_rooms_budget_phone():
     assert fields["phone"] == "+380501234567"
 
 
+def test_extract_bare_phone_does_not_also_set_a_bogus_budget():
+    # Regression: a message that's just a phone number (e.g. answering the
+    # phone question as free text) used to also match the budget regex
+    # against the same digits, setting a nonsensical budget like
+    # 380501234567 USD.
+    fields = extract_fields("+380501234567")
+    assert fields["phone"] == "+380501234567"
+    assert "budget_max" not in fields
+
+
 def test_classify_hot_when_urgent_and_has_core_data():
     fields = {"budget_max": 95000, "phone": "+380501234567"}
     result = classify(fields, "Потрібно терміново, цього тижня")
@@ -68,6 +78,34 @@ def test_heuristic_reply_remembers_a_historical_bare_number_answer():
     ]
     result = heuristic_reply(history, "0501234567")
     assert "кімнат" not in result.reply_text.lower()
+
+
+def test_heuristic_reply_honors_fields_already_set_via_the_button_menu():
+    # Regression: the button menu writes straight onto the Lead row and
+    # never touches conversation_history, so a lead that picked deal_type/
+    # city/etc. via buttons and then typed their phone as free text (an
+    # explicitly supported alternative to the "share contact" button) used
+    # to have heuristic_reply re-ask "купівля, оренда чи продаж?" as if
+    # nothing had been answered yet, because it only knew about fields
+    # mentioned in conversation_history.
+    known_fields = {
+        "deal_type": "buy",
+        "city": "Львів",
+        "property_type": "apartment",
+        "rooms": 2,
+        "budget_max": 100000,
+    }
+    history = [{"role": "assistant", "content": "Залиште, будь ласка, номер телефону для зв'язку."}]
+    result = heuristic_reply(history, "+380671234567", known_fields)
+    assert result.profile_updates["phone"] == "+380671234567"
+    assert "купівля" not in result.reply_text.lower()
+    assert "зараз підберу" in result.reply_text.lower()
+    # Regression: classify() used to only see this turn's own extracted
+    # fields ({"phone": ...}), missing the budget_max set earlier via the
+    # button menu, so it explicitly classified the lead "cold" even though
+    # phone + budget were both actually present -- overriding what should
+    # have been "warm".
+    assert result.classification["temperature"] == "warm"
 
 
 def test_heuristic_reply_does_not_misread_its_own_greeting_as_an_answer():

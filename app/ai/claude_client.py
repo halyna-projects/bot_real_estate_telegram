@@ -44,12 +44,15 @@ class DialogueEngine:
         return self._client is not None
 
     def next_reply(
-        self, conversation_history: list[dict[str, Any]], user_message: str
+        self,
+        conversation_history: list[dict[str, Any]],
+        user_message: str,
+        known_fields: dict[str, Any] | None = None,
     ) -> DialogueResult:
         if not self.is_live:
             from app.ai.fallback import heuristic_reply
 
-            return heuristic_reply(conversation_history, user_message)
+            return heuristic_reply(conversation_history, user_message, known_fields)
 
         messages = list(conversation_history) + [
             {"role": "user", "content": user_message}
@@ -58,11 +61,20 @@ class DialogueEngine:
         profile_updates: dict[str, Any] = {}
         classification: dict[str, Any] | None = None
 
+        system = SYSTEM_PROMPT
+        if known_fields:
+            system += (
+                "\n\nAlready known about the client (e.g. picked via the menu "
+                f"buttons earlier in this conversation): {known_fields}. Don't "
+                "ask about this again — take it into account for the next "
+                "question and the update_lead_profile call."
+            )
+
         for _ in range(MAX_TOOL_ITERATIONS):
             response = self._client.messages.create(
                 model=self.settings.anthropic_model,
                 max_tokens=1024,
-                system=SYSTEM_PROMPT,
+                system=system,
                 tools=TOOLS,
                 messages=messages,
             )
