@@ -18,7 +18,8 @@
       <th>Клиент</th>
       <th>Телефон</th>
       <th>Сделка</th>
-      <th>Город</th>
+      <th>Город / район</th>
+      <th>Комнаты</th>
       <th>Бюджет</th>
       <th>Температура</th>
       <th>Статус воронки</th>
@@ -31,7 +32,8 @@
       <td>{{ lead.full_name or lead.telegram_username or ('ID ' ~ lead.telegram_user_id) }}</td>
       <td>{{ lead.phone or '—' }}</td>
       <td>{{ deal_type_labels.get(lead.deal_type.value if lead.deal_type else '', '—') }}</td>
-      <td>{{ lead.city or '—' }}</td>
+      <td>{{ lead.city or '—' }}{% if lead.district %}, {{ lead.district }}{% endif %}</td>
+      <td>{{ lead.rooms or '—' }}</td>
       <td>
         {% if lead.budget_max %}
           {{ '{:,}'.format(lead.budget_max).replace(',', ' ') }} {{ lead.budget_currency }}
@@ -46,7 +48,7 @@
       <td>{{ lead.next_action or '—' }}</td>
     </tr>
     {% else %}
-    <tr><td colspan="8">Обращений ещё нет.</td></tr>
+    <tr><td colspan="9">Обращений ещё нет.</td></tr>
     {% endfor %}
   </tbody>
 </table>
